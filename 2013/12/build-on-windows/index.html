@@ -1,0 +1,283 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>How to build jailbreak packages for iOS on Windows - sharedInstance</title>
+  <meta name="author" content="sharedInstance">
+
+  
+  <meta name="description" content="Want to develop jailbreak packages, but don&rsquo;t have a Mac? You could easily download a toolchain on your iPhone and build packages on there, but &hellip;">
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sharedinstance.net/2013/12/build-on-windows">
+  <link rel="icon" href="/favicon.png">
+  <link rel="stylesheet" href="/stylesheets/screen.css">
+  <link rel="alternate" href="/atom.xml" title="sharedInstance">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:700|Source+Code+Pro:400,700">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28374943-5']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">sharedInstance</a></h1>
+  <p><a href="#navigation" title="Navigation" id="js-navbutton">&#x2261;</a></p>
+</hgroup>
+
+</header>
+  <nav role="navigation">
+    <div class="container">  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sharedinstance.net" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+
+<div class="clear"></div>
+</div>
+  </nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">How to build jailbreak packages for iOS on Windows</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-24T00:00:00+10:30" pubdate data-updated="true">Dec 24<span>th</span>, 2013</time>
+        
+           &mdash; <a href="#disqus_thread"
+             data-disqus-identifier="http://sharedinstance.net">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Want to develop jailbreak packages, but don&rsquo;t have a Mac? You could easily download a toolchain on your iPhone and build packages on there, but if you have a Windows computer, you could instead use the extra speed that a desktop CPU provides, thanks to <a href="http://coolstar.org">coolstar</a>&rsquo;s fork of theos and toolchain for Windows. At least Windows XP is required for this.</p>
+
+<!--more-->
+
+
+<h2>Cygwin</h2>
+
+<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm-1024x766.png" alt="Cygwin website" /></a></p>
+
+<p>The toolchain requires Cygwin, an awesome piece of software that provides a Unix environment on Windows. Grab the appropriate setup program for your system architecture from <a href="https://sourceware.org/cygwin/install.html">cygwin.com/install.html</a> and run it. You&rsquo;ll be greeted by the standard setup welcome page, followed by a request for where to download packages from. You&rsquo;ll want to stick with the default &ldquo;Install from Internet&rdquo;. Next your way through until you get a list of sources &ndash; you can pick any of them; preferably one closer to you. After downloading a list of packages, the setup maximizes to show you a full list of available packages:</p>
+
+<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png" alt="Package list" /></a></p>
+
+<p>Here&rsquo;s what you&rsquo;ll need to search for and install:</p>
+
+<ul>
+<li>git (under Devel)</li>
+<li>ca-certificates (under Net)</li>
+<li>make (under Devel)</li>
+<li>perl (under Perl)</li>
+<li>python (under Python)</li>
+<li>openssh (under Net)</li>
+</ul>
+
+
+<p>Hit next two more times and let these packages, and the core Cygwin packages, install.</p>
+
+<h2>Toolchain</h2>
+
+<p>If you allowed it, the setup program dropped a shortcut to Cygwin Terminal on your desktop and/or Start menu. (If not, you can manually launch C:\cygwin\bin\mintty.exe.) Launch either one and you&rsquo;ll be greeted with a command line (bash):</p>
+
+<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png" alt="Cygwin terminal" /></a></p>
+
+<p><small>(I&rsquo;ve customised mine &ndash; yours will have a different font and size.)</small></p>
+
+<p>From here, we&rsquo;ll create the directory where theos will live in, and clone it from coolstar&rsquo;s fork:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mkdir -p /opt
+</span><span class='line'><span class="nb">cd</span> /opt
+</span><span class='line'>git clone -b windows git://github.com/coolstar/theos.git
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next up is the toolchain itself, which will take a while&hellip;</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git clone -b x86_64 git://github.com/coolstar/iOSToolchain4Win.git theos/toolchain/windows/iphone
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If your copy of Windows is not 64-bit, replace <code>x86_64</code> with <code>master</code>.</p>
+
+<h2>SDK</h2>
+
+<p>Once that&rsquo;s done, you&rsquo;ll need to download an SDK. Legally, you can only do this by downloading an Xcode DMG image from Apple, so head to their <a href="https://developer.apple.com/downloads/index.action">developer downloads page</a> (login required) and download an Xcode version of your choice &ndash; try Xcode 5 for the iOS 7 SDK and 4.6.3 for iOS 6.1. Meanwhile, you&rsquo;ll need to download and install <a href="http://www.acutesystems.com">TransMac</a> so that you can extract files from the DMG.</p>
+
+<p>Once the download is done, open the file. From there, click the DMG name in the sidebar, then navigate your way through to <code>Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs</code>. Right click <code>iPhoneOS6.1.sdk</code> and choose &ldquo;Copy To&rdquo;.</p>
+
+<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-24-at-6.53.11-pm.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-24-at-6.53.11-pm.png" alt="Extracting SDK" /></a></p>
+
+<p><small>(I&rsquo;m using Xcode 4.4.1, but the instructions will always be the same.)</small></p>
+
+<p>Here, you&rsquo;ll want to enter the path to Cygwin (unless you changed it, that&rsquo;s <code>C:\cygwin</code> on 32-bit Windows, or <code>C:\cygwin64</code> on 64-bit Windows), followed by the path to theos&#8217; SDK directory, and the directory name: <code>opt\theos\sdks\iPhoneOS6.1.sdk</code>. Hit OK and wait for the magic to happen.</p>
+
+<h2>Try it out!</h2>
+
+<p>Everything should work as you expect it to now. Let&rsquo;s try building a test tweak. Before you do, though, you should add theos environment variables to your <code>.bash_profile</code> (or equivalent for your shell). Open <code>C:\cygwin\home\...username...\.bash_profile</code> in your favorite editor and add this on the very last line, replacing the device name with your own device&rsquo;s, replacing spaces with dashes, or its IP address:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">THEOS</span><span class="o">=</span>/opt/theos
+</span><span class='line'><span class="nb">export </span><span class="nv">THEOS_DEVICE_IP</span><span class="o">=</span>kirbpad.local <span class="nv">THEOS_DEVICE_PORT</span><span class="o">=</span>22
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Load this into the shell with <code>. ~/.bash_profile</code>, or close the terminal window and launch a new one. <code>cd</code> to where you would like to store your theos projects (note that your C: drive lives at <code>/cygdrive/c</code> under Cygwin), or just create a new directory for that under your cygwin home directory:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span>
+</span><span class='line'>mkdir projects
+</span><span class='line'><span class="nb">cd </span>projects
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now run <code>$THEOS/bin/nic.pl</code> to summon the NIC. Select a tweak and provide the rest of the info. Now open Tweak.xm and paste in:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="o">%</span><span class="n">ctor</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;It works!&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Get ready to <a href="http://gist.io/5128340">watch your syslog</a>, and run <code>make package install</code> inside the project directory. If all goes well, you&rsquo;ll see this somewhere among the other messages in the syslog:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Dec 19 00:33:20 kirbpad SpringBoard[52026] &lt;Notice&gt;: MS:Notice: Loading: /Library/MobileSubstrate/DynamicLibraries/TestTweak.dylib
+</span><span class='line'>Dec 19 00:33:20 kirbpad SpringBoard[52026] &lt;Warning&gt;: It works!</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Have fun &ndash; and don&rsquo;t forget to thank <a href="http://coolstar.org">coolstar</a> for being awesome.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">kirb</span></span>
+ &mdash;
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-24T00:00:00+10:30" pubdate data-updated="true">Dec 24<span>th</span>, 2013</time> &mdash;
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/sbblog/'>SBBlog</a>
+  
+</span>
+
+
+    </p>
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2013/10/running-tweaks-in-simulator/" title="Previous Post: Running Substrate tweaks in the iOS Simulator">&laquo; Running Substrate tweaks in the iOS Simulator</a>
+      
+      
+        <a class="basic-alignment right" href="/2013/12/how-to-support-arm64/" title="Next Post: Important: Update your tweaks to support arm64">Important: Update your tweaks to support arm64 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013&ndash;2014, sharedInstance &mdash;
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script>
+      var disqus_shortname = 'sharedinstance';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+<script src="/javascripts/$.js"></script>
+<script src="/javascripts/script.js"></script>
+
+
+</body>
+</html>

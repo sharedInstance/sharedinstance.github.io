@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Important: Update your tweaks to support arm64 - sharedInstance</title>
+  <meta name="author" content="sharedInstance">
+
+  
+  <meta name="description" content="The iPhone 5s, iPad Air and iPad mini (2nd generation) both run on a completely new processor architecture: arm64. If you haven&rsquo;t heard, this &hellip;">
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sharedinstance.net/2013/12/how-to-support-arm64">
+  <link rel="icon" href="/favicon.png">
+  <link rel="stylesheet" href="/stylesheets/screen.css">
+  <link rel="alternate" href="/atom.xml" title="sharedInstance">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:700|Source+Code+Pro:400,700">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28374943-5']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">sharedInstance</a></h1>
+  <p><a href="#navigation" title="Navigation" id="js-navbutton">&#x2261;</a></p>
+</hgroup>
+
+</header>
+  <nav role="navigation">
+    <div class="container">  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sharedinstance.net" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+
+<div class="clear"></div>
+</div>
+  </nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Important: Update your tweaks to support arm64</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-24T00:00:00+10:30" pubdate data-updated="true">Dec 24<span>th</span>, 2013</time>
+        
+           &mdash; <a href="#disqus_thread"
+             data-disqus-identifier="http://sharedinstance.net">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>The iPhone 5s, iPad Air and iPad mini (2nd generation) both run on a completely new processor architecture: arm64. If you haven&rsquo;t heard, this architecture is 64-bit, unlike the previous 32-bit architectures (armv6, armv7 and armv7s). Of course, these devices are still backwards compatible with the 32-bit architectures, but for 64-bit processes, <strong>dynamic libraries not compiled for arm64 will not be loaded into them.</strong></p>
+
+<!--more-->
+
+
+<p>However, updating your tweak to work on arm64 is fairly simple. It does come with one caveat, however: you are required to compile with the iOS 7.0 or newer SDK. If you&rsquo;re not using Xcode 5 or newer to compile your tweaks, you must do so in order to fully support these devices.</p>
+
+<p>Unfortunately, if you&rsquo;re not using the official toolchain (included with Xcode) to build your tweaks, it is currently not possible to support arm64, since Apple is yet to release the source code for the open-source tools included with the Xcode 5 toolchain.</p>
+
+<p>Before you start, be sure to <a href="https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaTouch64BitGuide/ConvertingYourAppto64-Bit/ConvertingYourAppto64-Bit.html">update your code for arm64</a>. Please also remember that Substrate is currently not updated for arm64, so you may want to hold off on doing this if you don&rsquo;t have an arm64 device to test with.</p>
+
+<h2>The easy way</h2>
+
+<p><strong style="font-size: 1.05em;">(If you don&rsquo;t need to support iOS 4.2.1 or older)</strong></p>
+
+<p>The easiest way to fix this issue is simply to start using the iOS 7 SDK, and force theos to build your tweaks for both armv7 and arm64. If you have Xcode 5, you&rsquo;ve most likely already completed the first part (if not, head to the App Store and update Xcode!). The second part is still fairly easy: open your project&rsquo;s makefile and add this line above the first <code>include</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='make'><span class='line'><span class="nv">ARCHS</span> <span class="o">=</span> armv7 arm64
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, download <a href="http://cdn.hbang.ws/dl/libsubstrate_arm64.dylib">this build of the libsubstrate.dylib stub</a> (contains armv6/armv7/armv7s/arm64 as well as i386 for OS X and x86_64 for iOS Simulator) and replace the existing file at $THEOS/lib/libsubstrate.dylib. That&rsquo;s it!</p>
+
+<h2>The slightly more complex way</h2>
+
+<p>It may not be viable to compile only against the iOS 7 SDK, since that might mean dropping support for iOS versions before 4.3.  If you have a preference bundle, wee app, or anything else that is loaded into an arm64 process, don&rsquo;t forget that you&rsquo;ll need to perform the same thing to its binaries too. There are tons of goodies available on <a href="http://iphonedevwiki.net/index.php/Updating_extensions_for_iOS_7#Tweaks_that_do_need_iOS_4.2.1_and_below_compatibility">the dev wiki</a> for this situation &ndash; and also has tips for issues that you may come across.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">kirb</span></span>
+ &mdash;
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-24T00:00:00+10:30" pubdate data-updated="true">Dec 24<span>th</span>, 2013</time> &mdash;
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/sbblog/'>SBBlog</a>
+  
+</span>
+
+
+    </p>
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2013/12/build-on-windows/" title="Previous Post: How to build jailbreak packages for iOS on Windows">&laquo; How to build jailbreak packages for iOS on Windows</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013&ndash;2014, sharedInstance &mdash;
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script>
+      var disqus_shortname = 'sharedinstance';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+<script src="/javascripts/$.js"></script>
+<script src="/javascripts/script.js"></script>
+
+
+</body>
+</html>

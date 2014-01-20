@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[sharedInstance]]></title>
+  <link href="http://sharedinstance.net/atom.xml" rel="self"/>
+  <link href="http://sharedinstance.net/"/>
+  <updated>2014-01-20T23:18:26+10:30</updated>
+  <id>http://sharedinstance.net/</id>
+  <author>
+    <name><![CDATA[sharedInstance]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Important: Update your tweaks to support arm64]]></title>
+    <link href="http://sharedinstance.net/2013/12/how-to-support-arm64/"/>
+    <updated>2013-12-24T00:00:00+10:30</updated>
+    <id>http://sharedinstance.net/2013/12/how-to-support-arm64</id>
+    <content type="html"><![CDATA[<p>The iPhone 5s, iPad Air and iPad mini (2nd generation) both run on a completely new processor architecture: arm64. If you haven&rsquo;t heard, this architecture is 64-bit, unlike the previous 32-bit architectures (armv6, armv7 and armv7s). Of course, these devices are still backwards compatible with the 32-bit architectures, but for 64-bit processes, <strong>dynamic libraries not compiled for arm64 will not be loaded into them.</strong></p>
+
+<!--more-->
+
+
+<p>However, updating your tweak to work on arm64 is fairly simple. It does come with one caveat, however: you are required to compile with the iOS 7.0 or newer SDK. If you&rsquo;re not using Xcode 5 or newer to compile your tweaks, you must do so in order to fully support these devices.</p>
+
+<p>Unfortunately, if you&rsquo;re not using the official toolchain (included with Xcode) to build your tweaks, it is currently not possible to support arm64, since Apple is yet to release the source code for the open-source tools included with the Xcode 5 toolchain.</p>
+
+<p>Before you start, be sure to <a href="https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaTouch64BitGuide/ConvertingYourAppto64-Bit/ConvertingYourAppto64-Bit.html">update your code for arm64</a>. Please also remember that Substrate is currently not updated for arm64, so you may want to hold off on doing this if you don&rsquo;t have an arm64 device to test with.</p>
+
+<h2>The easy way</h2>
+
+<p><strong style="font-size: 1.05em;">(If you don&rsquo;t need to support iOS 4.2.1 or older)</strong></p>
+
+<p>The easiest way to fix this issue is simply to start using the iOS 7 SDK, and force theos to build your tweaks for both armv7 and arm64. If you have Xcode 5, you&rsquo;ve most likely already completed the first part (if not, head to the App Store and update Xcode!). The second part is still fairly easy: open your project&rsquo;s makefile and add this line above the first <code>include</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='make'><span class='line'><span class="nv">ARCHS</span> <span class="o">=</span> armv7 arm64
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, download <a href="http://cdn.hbang.ws/dl/libsubstrate_arm64.dylib">this build of the libsubstrate.dylib stub</a> (contains armv6/armv7/armv7s/arm64 as well as i386 for OS X and x86_64 for iOS Simulator) and replace the existing file at $THEOS/lib/libsubstrate.dylib. That&rsquo;s it!</p>
+
+<h2>The slightly more complex way</h2>
+
+<p>It may not be viable to compile only against the iOS 7 SDK, since that might mean dropping support for iOS versions before 4.3.  If you have a preference bundle, wee app, or anything else that is loaded into an arm64 process, don&rsquo;t forget that you&rsquo;ll need to perform the same thing to its binaries too. There are tons of goodies available on <a href="http://iphonedevwiki.net/index.php/Updating_extensions_for_iOS_7#Tweaks_that_do_need_iOS_4.2.1_and_below_compatibility">the dev wiki</a> for this situation &ndash; and also has tips for issues that you may come across.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[How to build jailbreak packages for iOS on Windows]]></title>
+    <link href="http://sharedinstance.net/2013/12/build-on-windows/"/>
+    <updated>2013-12-24T00:00:00+10:30</updated>
+    <id>http://sharedinstance.net/2013/12/build-on-windows</id>
+    <content type="html"><![CDATA[<p>Want to develop jailbreak packages, but don&rsquo;t have a Mac? You could easily download a toolchain on your iPhone and build packages on there, but if you have a Windows computer, you could instead use the extra speed that a desktop CPU provides, thanks to <a href="http://coolstar.org">coolstar</a>&rsquo;s fork of theos and toolchain for Windows. At least Windows XP is required for this.</p>
+
+<!--more-->
+
+
+<h2>Cygwin</h2>
+
+<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm-1024x766.png" alt="Cygwin website" /></a></p>
+
+<p>The toolchain requires Cygwin, an awesome piece of software that provides a Unix environment on Windows. Grab the appropriate setup program for your system architecture from <a href="https://sourceware.org/cygwin/install.html">cygwin.com/install.html</a> and run it. You&rsquo;ll be greeted by the standard setup welcome page, followed by a request for where to download packages from. You&rsquo;ll want to stick with the default &ldquo;Install from Internet&rdquo;. Next your way through until you get a list of sources &ndash; you can pick any of them; preferably one closer to you. After downloading a list of packages, the setup maximizes to show you a full list of available packages:</p>
+
+<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png" alt="Package list" /></a></p>
+
+<p>Here&rsquo;s what you&rsquo;ll need to search for and install:</p>
+
+<ul>
+<li>git (under Devel)</li>
+<li>ca-certificates (under Net)</li>
+<li>make (under Devel)</li>
+<li>perl (under Perl)</li>
+<li>python (under Python)</li>
+<li>openssh (under Net)</li>
+</ul>
+
+
+<p>Hit next two more times and let these packages, and the core Cygwin packages, install.</p>
+
+<h2>Toolchain</h2>
+
+<p>If you allowed it, the setup program dropped a shortcut to Cygwin Terminal on your desktop and/or Start menu. (If not, you can manually launch C:\cygwin\bin\mintty.exe.) Launch either one and you&rsquo;ll be greeted with a command line (bash):</p>
+
+<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png" alt="Cygwin terminal" /></a></p>
+
+<p><small>(I&rsquo;ve customised mine &ndash; yours will have a different font and size.)</small></p>
+
+<p>From here, we&rsquo;ll create the directory where theos will live in, and clone it from coolstar&rsquo;s fork:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mkdir -p /opt
+</span><span class='line'><span class="nb">cd</span> /opt
+</span><span class='line'>git clone -b windows git://github.com/coolstar/theos.git
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next up is the toolchain itself, which will take a while&hellip;</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>git clone -b x86_64 git://github.com/coolstar/iOSToolchain4Win.git theos/toolchain/windows/iphone
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If your copy of Windows is not 64-bit, replace <code>x86_64</code> with <code>master</code>.</p>
+
+<h2>SDK</h2>
+
+<p>Once that&rsquo;s done, you&rsquo;ll need to download an SDK. Legally, you can only do this by downloading an Xcode DMG image from Apple, so head to their <a href="https://developer.apple.com/downloads/index.action">developer downloads page</a> (login required) and download an Xcode version of your choice &ndash; try Xcode 5 for the iOS 7 SDK and 4.6.3 for iOS 6.1. Meanwhile, you&rsquo;ll need to download and install <a href="http://www.acutesystems.com">TransMac</a> so that you can extract files from the DMG.</p>
+
+<p>Once the download is done, open the file. From there, click the DMG name in the sidebar, then navigate your way through to <code>Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs</code>. Right click <code>iPhoneOS6.1.sdk</code> and choose &ldquo;Copy To&rdquo;.</p>
+
+<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-24-at-6.53.11-pm.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-24-at-6.53.11-pm.png" alt="Extracting SDK" /></a></p>
+
+<p><small>(I&rsquo;m using Xcode 4.4.1, but the instructions will always be the same.)</small></p>
+
+<p>Here, you&rsquo;ll want to enter the path to Cygwin (unless you changed it, that&rsquo;s <code>C:\cygwin</code> on 32-bit Windows, or <code>C:\cygwin64</code> on 64-bit Windows), followed by the path to theos&#8217; SDK directory, and the directory name: <code>opt\theos\sdks\iPhoneOS6.1.sdk</code>. Hit OK and wait for the magic to happen.</p>
+
+<h2>Try it out!</h2>
+
+<p>Everything should work as you expect it to now. Let&rsquo;s try building a test tweak. Before you do, though, you should add theos environment variables to your <code>.bash_profile</code> (or equivalent for your shell). Open <code>C:\cygwin\home\...username...\.bash_profile</code> in your favorite editor and add this on the very last line, replacing the device name with your own device&rsquo;s, replacing spaces with dashes, or its IP address:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">THEOS</span><span class="o">=</span>/opt/theos
+</span><span class='line'><span class="nb">export </span><span class="nv">THEOS_DEVICE_IP</span><span class="o">=</span>kirbpad.local <span class="nv">THEOS_DEVICE_PORT</span><span class="o">=</span>22
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Load this into the shell with <code>. ~/.bash_profile</code>, or close the terminal window and launch a new one. <code>cd</code> to where you would like to store your theos projects (note that your C: drive lives at <code>/cygdrive/c</code> under Cygwin), or just create a new directory for that under your cygwin home directory:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">cd</span>
+</span><span class='line'>mkdir projects
+</span><span class='line'><span class="nb">cd </span>projects
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now run <code>$THEOS/bin/nic.pl</code> to summon the NIC. Select a tweak and provide the rest of the info. Now open Tweak.xm and paste in:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="o">%</span><span class="n">ctor</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;It works!&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Get ready to <a href="http://gist.io/5128340">watch your syslog</a>, and run <code>make package install</code> inside the project directory. If all goes well, you&rsquo;ll see this somewhere among the other messages in the syslog:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Dec 19 00:33:20 kirbpad SpringBoard[52026] &lt;Notice&gt;: MS:Notice: Loading: /Library/MobileSubstrate/DynamicLibraries/TestTweak.dylib
+</span><span class='line'>Dec 19 00:33:20 kirbpad SpringBoard[52026] &lt;Warning&gt;: It works!</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Have fun &ndash; and don&rsquo;t forget to thank <a href="http://coolstar.org">coolstar</a> for being awesome.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Running Substrate tweaks in the iOS Simulator]]></title>
+    <link href="http://sharedinstance.net/2013/10/running-tweaks-in-simulator/"/>
+    <updated>2013-10-21T00:00:00+10:30</updated>
+    <id>http://sharedinstance.net/2013/10/running-tweaks-in-simulator</id>
+    <content type="html"><![CDATA[<p>With the iPhone 4 being the last iOS 7 device standing that can be jailbroken tethered, it&rsquo;s gotten much harder to test and update tweaks for the new firmware ahead of the untethered jailbreak release.</p>
+
+<p>But there&rsquo;s still a way to do this if you&rsquo;re on a Mac. The iOS Simulator is basically already jailbroken, in the sense that you can access its filesystem and not all security policies are enforced. Therefore you can test your SpringBoard tweaks on iOS 7 with the simulator.</p>
+
+<!--more-->
+
+
+<p>Do keep in mind that this will only work with tweaks that only need to load into SpringBoard or other daemons. If you want to test a tweak inside apps, unfortunately you&rsquo;ll need to wait for a proper Substrate for OS X release that can do this.</p>
+
+<h3>Installing</h3>
+
+<p>First, you need to install Substrate. The binaries in the Substrate package in Cydia (except for MobileSafety) are compiled for both armv6 and i386/x86_64, so you can simply download, extract, and copy the files out of the package like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>wget http://apt.saurik.com/debs/mobilesubstrate_0.9.4001_iphoneos-arm.deb
+</span><span class='line'>mkdir substrate
+</span><span class='line'>dpkg-deb -x mobilesubstrate_0.9.4001_iphoneos-arm.deb substrate
+</span><span class='line'>sudo mv substrate/Library/Frameworks/CydiaSubstrate.framework /Library/Frameworks/CydiaSubstrate.framework
+</span><span class='line'>sudo mv substrate/Library/MobileSubstrate /Library/MobileSubstrate
+</span><span class='line'>sudo mv substrate/usr/lib/* /usr/lib
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Injecting</h3>
+
+<p>Awesome, now we need to get it to inject into the iOS Simulator. As of iOS 7, SpringBoard is launched by <code>launchd_sim</code> instead of directly by the simulator binary, so the hack that many people used in the past no longer works. However, you can still use Substrate by manually modifying LaunchDaemon plists found in the SDK.</p>
+
+<p>Head over to the <code>LaunchDaemons</code> directory of the simulator&rsquo;s sysroot on your Mac:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.0.sdk/System/Library/LaunchDaemons
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Make a backup of <code>com.apple.SpringBoard.plist</code> somewhere other than the LaunchDaemons directory (otherwise SpringBoard will be loaded twice).</p>
+
+<p>Now open the original plist in your favorite text or plist editor (Xcode has one built in). It&rsquo;s a binary plist, so if your text editor isn&rsquo;t cool enough to convert it to XML automatically, you can do so with <code>plutil -convert xml1 com.apple.SpringBoard.plist</code>. Add an <code>EnvironmentVariables</code> key, and set its value to a dictionary containing <code>DYLD_INSERT_LIBRARIES</code>, and set the value of that to the location of your dylib (<em>not MobileSubstrate.dylib</em>).</p>
+
+<p>You should end up with something like this:</p>
+
+<p><img src="http://cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/10/Screen-Shot-2013-10-20-at-9.58.32-PM-1.png" alt="Modified com.apple.SpringBoard.plist" /></p>
+
+<p>If you have the simulator running, close and re-launch it for the changes to apply.</p>
+
+<h3>Environment</h3>
+
+<p>Next, you must export <code>$IPHONE_SIMULATOR_ROOT</code>. Open <code>~/.bash_profile</code> (or the equivalent for your shell) and add:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">IPHONE_SIMULATOR_ROOT</span><span class="o">=</span>/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.0.sdk
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Load the changes into your shell by executing <code>. ~/.bash_profile</code>, or just close and launch a new shell.</p>
+
+<p>Finally, you need to make a minor modification to theos, since the iOS 7 SDK&rsquo;s ld doesn&rsquo;t like one of the flags that theos passes to it. Open <code>$THEOS/makefiles/targets/Darwin/simulator.mk</code> in your editor, and find the following line:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='make'><span class='line'><span class="nv">_TARGET_OSX_VERSION_FLAG</span> <span class="o">=</span> -mmacosx-version-min<span class="o">=</span><span class="k">$(if</span> <span class="k">$(</span>_TARGET_VERSION_GE_4_0<span class="k">)</span>,10.6,10.5<span class="k">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Replace it with this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='make'><span class='line'><span class="nv">_TARGET_VERSION_GE_7_0</span> <span class="o">=</span> <span class="k">$(</span>call __simplify,_TARGET_VERSION_GE_7_0,<span class="k">$(</span>shell <span class="k">$(</span>THEOS_BIN_PATH<span class="k">)</span>/vercmp.pl <span class="k">$(</span>_THEOS_TARGET_SDK_VERSION<span class="k">)</span> ge 7.0<span class="k">))</span>
+</span><span class='line'><span class="nv">_TARGET_OSX_VERSION_FLAG</span> <span class="o">=</span> <span class="k">$(if</span> <span class="k">$(</span>_TARGET_VERSION_GE_7_0<span class="k">)</span>,-miphoneos-version-min<span class="o">=</span>7.0,-mmacosx-version-min<span class="o">=</span><span class="k">$(if</span> <span class="k">$(</span>_TARGET_VERSION_GE_4_0<span class="k">)</span>,10.6,10.5<span class="k">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Linking</h3>
+
+<p>Your copy of <code>libsubstrate.dylib</code> won&rsquo;t be able to be linked against, since it doesn&rsquo;t have a slice for the iOS Simulator platform. You can download a version that does like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mv <span class="nv">$THEOS</span>/lib/libsubstrate.dylib <span class="nv">$THEOS</span>/lib/libsubstrate.dylib_
+</span><span class='line'>wget http://cdn.hbang.ws/dl/libsubstrate_ios7sim.dylib -O <span class="nv">$THEOS</span>/lib/libsubstrate.dylib
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that this only contains an x86_64 slice for OS X, since it isn&rsquo;t possible to have multiple i386 slices. However, you won&rsquo;t need to worry about this unless you have OS X projects that depend on OS X 10.5 or older.</p>
+
+<h3>Compiling</h3>
+
+<p>Simply compiling tweaks like normal is not enough for them to work in the simulator: in this case, they&rsquo;ll be compiled for the ARM architecture, and your Mac runs on Intel. It&rsquo;s fairly simple to do this with theos, however, by setting the <code>TARGET</code> variable.</p>
+
+<p>If you don&rsquo;t already have <code>TARGET</code> set in your makefile, at the top of your makefile, add this line:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='make'><span class='line'><span class="nv">TARGET</span> <span class="o">=</span> simulator
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you do, set the target parameter to <code>simulator</code>. For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='make'><span class='line'><span class="nv">TARGET</span> <span class="o">=</span> simulator:clang:7.0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><small>(Check out <a href="https://github.com/theiostream/theos-ref/blob/master/2_1_1_5_0_TARGET.md">theiostream&rsquo;s documentation on TARGET</a> if you haven&rsquo;t tried it before.)</small></p>
+
+<h3>That&rsquo;s it!</h3>
+
+<p>You can now run make, ignoring the warning that ld whines about. SpringBoard will not be restarted for you, like usual – you must execute <code>killall SpringBoard</code> yourself.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Welcome to sharedInstance!]]></title>
+    <link href="http://sharedinstance.net/2013/10/welcome-to-sharedinstance/"/>
+    <updated>2013-10-10T00:00:00+10:30</updated>
+    <id>http://sharedinstance.net/2013/10/welcome-to-sharedinstance</id>
+    <content type="html"><![CDATA[<p>Welcome to sharedInstance!</p>
+
+<p>Here you can access the latest blog posts from the perspective of various Jailbreak Tweak Developers, iOS Hackers and many more.</p>
+
+<p>You can expect tweak reviews, some tutorials and also tips that’ll help you make better jailbreak tweaks.</p>
+
+<!--more-->
+
+
+<p>The reason for starting this blog is simple – popular jailbreak blogs tend to make lame posts in order to increase their traffic while sometimes giving us biased opinions on tweaks. As developers, we believe it’s better to know the accurate story instead of interpretations that could be inaccurate. Much love to <a href="http://unthreadedjb.github.io" title="dey r of TRU #JBrevue !!">unthreadebl00g</a> for opening our eyes to this.</p>
+
+<p>Our core members consist of:</p>
+
+<ul>
+<li><a href="https://twitter.com/aehmlo">Aehmlo</a></li>
+<li><a href="https://twitter.com/bensge">Bensge</a></li>
+<li><a href="https://twitter.com/coolstarorg">CoolStar</a></li>
+<li><a href="https://twitter.com/FTO2g">FTO</a></li>
+<li><a href="https://twitter.com/idhanta">Idhanta</a></li>
+<li><a href="https://twitter.com/thekirbylover">kirb</a></li>
+</ul>
+
+
+<p>If you want to get in touch with us, you can follow <a href="https://twitter.com/sharedinstance">@sharedInstance</a> on Twitter or email us at <a href="mailto:sharedinstance@gmail.com">sharedinstance@gmail.com</a>.</p>
+
+<p>Thanks, and enjoy!</p>
+]]></content>
+  </entry>
+  
+</feed>
