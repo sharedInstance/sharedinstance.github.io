@@ -4,7 +4,7 @@
   <title><![CDATA[Category: SBBlog | sharedInstance]]></title>
   <link href="http://sharedinstance.net/categories/sbblog/atom.xml" rel="self"/>
   <link href="http://sharedinstance.net/"/>
-  <updated>2014-01-20T23:32:46+10:30</updated>
+  <updated>2014-01-24T08:06:53+10:30</updated>
   <id>http://sharedinstance.net/</id>
   <author>
     <name><![CDATA[sharedInstance]]></name>
@@ -59,11 +59,11 @@ ARCHS = armv7 arm64
 
 <h2>Cygwin</h2>
 
-<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm-1024x766.png" alt="Cygwin website" /></a></p>
+<p><a href="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm.png"><img src="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm-1024x766.png" alt="Cygwin website" /></a></p>
 
 <p>The toolchain requires Cygwin, an awesome piece of software that provides a Unix environment on Windows. Grab the appropriate setup program for your system architecture from <a href="https://sourceware.org/cygwin/install.html">cygwin.com/install.html</a> and run it. You&rsquo;ll be greeted by the standard setup welcome page, followed by a request for where to download packages from. You&rsquo;ll want to stick with the default &ldquo;Install from Internet&rdquo;. Next your way through until you get a list of sources &ndash; you can pick any of them; preferably one closer to you. After downloading a list of packages, the setup maximizes to show you a full list of available packages:</p>
 
-<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png" alt="Package list" /></a></p>
+<p><a href="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png"><img src="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png" alt="Package list" /></a></p>
 
 <p>Here&rsquo;s what you&rsquo;ll need to search for and install:</p>
 
@@ -83,7 +83,7 @@ ARCHS = armv7 arm64
 
 <p>If you allowed it, the setup program dropped a shortcut to Cygwin Terminal on your desktop and/or Start menu. (If not, you can manually launch C:\cygwin\bin\mintty.exe.) Launch either one and you&rsquo;ll be greeted with a command line (bash):</p>
 
-<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png" alt="Cygwin terminal" /></a></p>
+<p><a href="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png"><img src="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png" alt="Cygwin terminal" /></a></p>
 
 <p><small>(I&rsquo;ve customised mine &ndash; yours will have a different font and size.)</small></p>
 
@@ -109,7 +109,7 @@ git clone -b x86_64 git://github.com/coolstar/iOSToolchain4Win.git theos/toolcha
 
 <p>Once the download is done, open the file. From there, click the DMG name in the sidebar, then navigate your way through to <code>Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs</code>. Right click <code>iPhoneOS6.1.sdk</code> and choose &ldquo;Copy To&rdquo;.</p>
 
-<p><a href="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-24-at-6.53.11-pm.png"><img src="http://sharedinstance.net/wp-content/uploads/2013/12/Screen-Shot-2013-12-24-at-6.53.11-pm.png" alt="Extracting SDK" /></a></p>
+<p><a href="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-24-at-6.53.11-pm.png"><img src="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-24-at-6.53.11-pm.png" alt="Extracting SDK" /></a></p>
 
 <p><small>(I&rsquo;m using Xcode 4.4.1, but the instructions will always be the same.)</small></p>
 
