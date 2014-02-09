@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Debugging memory issues in Substrate tweaks - sharedInstance</title>
+  <meta name="author" content="sharedInstance">
+
+  
+  <meta name="description" content="Memory issues in MobileSubstrate tweaks are generally not very easy to debug. In the following text I&rsquo;m explaining some useful tools for &hellip;">
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sharedinstance.net/2014/02/debugging-memory-issues">
+  <link rel="icon" href="/favicon.png">
+  <link rel="stylesheet" href="/stylesheets/screen.css">
+  <link rel="alternate" href="/atom.xml" title="sharedInstance">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:700|Source+Code+Pro:400,700">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28374943-5']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">sharedInstance</a></h1>
+  <p><a href="#navigation" title="Navigation" id="js-navbutton">&#x2261;</a></p>
+</hgroup>
+
+</header>
+  <nav role="navigation">
+    <div class="container">  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sharedinstance.net" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+
+<div class="clear"></div>
+</div>
+  </nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Debugging memory issues in Substrate tweaks</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-10T00:00:00+10:30" pubdate data-updated="true">Feb 10<span>th</span>, 2014</time>
+        
+           &mdash; <a href="#disqus_thread"
+             data-disqus-identifier="http://sharedinstance.net">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Memory issues in MobileSubstrate tweaks are generally not very easy to debug. In the following text I&rsquo;m explaining some useful tools for finding overreleases and leaks in your own tweaks.</p>
+
+<!--more-->
+
+
+<p>One useful trick is to override <code>- (void)dealloc</code> in your subclasses and write a message to the syslog; that way you can make sure your objects are actually getting freed after usage. If dealloc is not getting called, you probably need to release that object once more. Keep in mind you should remove those logs for release builds of your tweaks. An easy way to do this is by adding this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="cp">#ifndef DEBUG</span>
+</span><span class='line'><span class="cp">#define NSLog</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>On top of your tweaks makefile, add <code>DEBUG=1</code> to enable NSLogs, set it to zero or remove the line to disable all logs. You can also pass it to make at the command line, for instance: <code>make package install DEBUG=1</code>.</p>
+
+<p>Another extremely useful trick if you experience crashes from use-after-free issues is to enable zombie objects. To enable those in any process you want (e.x. SpringBoard), ssh into your device, attach to the process with <code>cycript -p processname</code> first. Then declare _CFEnableZombies() in cycript like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">_CFEnableZombies</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Functor</span><span class="p">(</span><span class="nx">dlsym</span><span class="p">(</span><span class="nx">RTLD_DEFAULT</span><span class="p">,</span> <span class="s2">&quot;_CFEnableZombies&quot;</span><span class="p">),</span> <span class="s2">&quot;v&quot;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can enable zombie objects simply by calling <code>_CFEnableZombies()</code>. Open up a syslog and keep and eye on it while the memory crash happens. You’ll see a message like this one:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;Error&gt;: *** -[UIWindow methodSignatureForSelector:]: message sent to deallocated instance 0x162a7730`</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There we go! Now just search for the (in this example) <code>methodSignatureForSelector:</code> in your code and fix the memory crash!</p>
+
+<p>Happy debugging!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">bensge</span></span>
+ &mdash;
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-10T00:00:00+10:30" pubdate data-updated="true">Feb 10<span>th</span>, 2014</time> &mdash;
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/sbblog/'>SBBlog</a>
+  
+</span>
+
+
+    </p>
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2013/12/how-to-support-arm64/" title="Previous Post: Important: Update your tweaks to support arm64">&laquo; Important: Update your tweaks to support arm64</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section class="comments">
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013&ndash;2014, sharedInstance &mdash;
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script>
+      var disqus_shortname = 'sharedinstance';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sharedinstance.net/2014/02/debugging-memory-issues/';
+        var disqus_url = 'http://sharedinstance.net/2014/02/debugging-memory-issues/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+<script src="/javascripts/$.js"></script>
+<script src="/javascripts/script.js"></script>
+
+
+</body>
+</html>

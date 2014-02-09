@@ -2,27 +2,31 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://sharedinstance.net/2013/10/welcome-to-sharedinstance/</loc>
-        <lastmod>2014-01-20T22:44:44+10:30</lastmod>
+        <lastmod>2014-02-10T01:14:52+10:30</lastmod>
     </url>
     <url>
         <loc>http://sharedinstance.net/2013/10/running-tweaks-in-simulator/</loc>
-        <lastmod>2014-01-20T22:44:44+10:30</lastmod>
+        <lastmod>2014-02-10T01:14:52+10:30</lastmod>
     </url>
     <url>
         <loc>http://sharedinstance.net/2013/12/build-on-windows/</loc>
-        <lastmod>2014-01-24T08:01:23+10:30</lastmod>
+        <lastmod>2014-02-10T01:14:52+10:30</lastmod>
     </url>
     <url>
         <loc>http://sharedinstance.net/2013/12/how-to-support-arm64/</loc>
-        <lastmod>2014-01-20T23:18:26+10:30</lastmod>
+        <lastmod>2014-02-10T01:14:52+10:30</lastmod>
+    </url>
+    <url>
+        <loc>http://sharedinstance.net/2014/02/debugging-memory-issues/</loc>
+        <lastmod>2014-02-10T01:14:52+10:30</lastmod>
     </url>
     <url>
         <loc>http://sharedinstance.net/blog/archives/</loc>
-        <lastmod>2014-01-24T08:01:23+10:30</lastmod>
+        <lastmod>2014-02-10T01:09:13+10:30</lastmod>
     </url>
     <url>
         <loc>http://sharedinstance.net/</loc>
-        <lastmod>2014-01-24T08:01:23+10:30</lastmod>
+        <lastmod>2014-02-10T01:09:13+10:30</lastmod>
     </url>
     <url>
         <loc>http://sharedinstance.net/robots.txt</loc>
