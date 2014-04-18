@@ -4,6 +4,7 @@ title: "Running Substrate tweaks in the iOS Simulator"
 date: 2013-10-21
 categories: SBBlog
 author: FTO and kirb
+comments: true
 ---
 
 With the iPhone 4 being the last iOS 7 device standing that can be jailbroken tethered, it's gotten much harder to test and update tweaks for the new firmware ahead of the untethered jailbreak release.

@@ -4,6 +4,7 @@ title: "Important: Update your tweaks to support arm64"
 date: 2013-12-24
 categories: SBBlog
 author: kirb
+comments: true
 ---
 
 The iPhone 5s, iPad Air and iPad mini (2nd generation) both run on a completely new processor architecture: arm64. If you haven't heard, this architecture is 64-bit, unlike the previous 32-bit architectures (armv6, armv7 and armv7s). Of course, these devices are still backwards compatible with the 32-bit architectures, but for 64-bit processes, **dynamic libraries not compiled for arm64 will not be loaded into them.**

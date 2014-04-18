@@ -4,6 +4,7 @@ title: "Welcome to sharedInstance!"
 date: 2013-10-10
 categories: sharedInstance
 author: idhanta
+comments: true
 ---
 
 Welcome to sharedInstance!
