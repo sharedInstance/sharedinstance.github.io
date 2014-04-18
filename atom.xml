@@ -4,7 +4,7 @@
   <title><![CDATA[sharedInstance]]></title>
   <link href="http://sharedinstance.net/atom.xml" rel="self"/>
   <link href="http://sharedinstance.net/"/>
-  <updated>2014-02-10T01:16:39+10:30</updated>
+  <updated>2014-04-18T11:11:16+09:30</updated>
   <id>http://sharedinstance.net/</id>
   <author>
     <name><![CDATA[sharedInstance]]></name>
@@ -12,6 +12,118 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Adding simple toggles in the Settings root list]]></title>
+    <link href="http://sharedinstance.net/2014/04/settings-root-toggles/"/>
+    <updated>2014-04-18T11:04:22+09:30</updated>
+    <id>http://sharedinstance.net/2014/04/settings-root-toggles</id>
+    <content type="html"><![CDATA[<p>I just wanted to post a quick trick you can use to show a toggle in the root Settings list view.</p>
+
+<p>If you generate a new preference bundle project with NIC and open <code>entry.plist</code>, you&rsquo;ll find this:</p>
+
+<!--more-->
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+</span><span class='line'><span class="cp">&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;</span>
+</span><span class='line'><span class="nt">&lt;plist</span> <span class="na">version=</span><span class="s">&quot;1.0&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>entry<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>bundle<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>TypeStatus<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>cell<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>PSLinkCell<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>detail<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>HBTSListController<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>icon<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>icon.png<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>isController<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;true/&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>label<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>TypeStatus<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'><span class="nt">&lt;/plist&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Indeed, the cells shown in the root of Settings courtesy of PreferenceLoader are customizable. You could slap your whole settings panel there if you wanted (but that&rsquo;s clearly not a good idea). What you <em>could</em> do, though, is use it for tweaks whose settings consist of nothing more than an &ldquo;enabled&rdquo; toggle.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+</span><span class='line'><span class="cp">&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;</span>
+</span><span class='line'><span class="nt">&lt;plist</span> <span class="na">version=</span><span class="s">&quot;1.0&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>entry<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>cell<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>PSSwitchCell<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>default<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;true/&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>defaults<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>ws.hbang.typestatus<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>icon<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>TypeStatus.png<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>label<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>TypeStatus<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>PostNotification<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>ws.hbang.typestatus/ReloadPrefs<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'><span class="nt">&lt;/plist&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The icon can be dropped at <code>/Library/PreferenceLoader/Preferences/TypeStatus.png</code>. Unfortunately for themers, this means it can&rsquo;t be themed with WinterBoard.</p>
+
+<p>Ok, that&rsquo;s easy enough, but I mention this because if one or two tweaks did this, it would look pretty odd. If more tweaks do this, it&rsquo;ll look completely normal. And, as Ryan Petrich noted in his <a href="http://rpetri.ch/wwjc2014/rpetrich_wwjc2014.pdf">WWJC talk</a> a few days ago, every tweak should have settings &ndash; even if it&rsquo;s just a single on/off switch.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Debugging memory issues in Substrate tweaks]]></title>

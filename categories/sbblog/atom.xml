@@ -4,7 +4,7 @@
   <title><![CDATA[Category: SBBlog | sharedInstance]]></title>
   <link href="http://sharedinstance.net/categories/sbblog/atom.xml" rel="self"/>
   <link href="http://sharedinstance.net/"/>
-  <updated>2014-02-10T01:16:39+10:30</updated>
+  <updated>2014-04-18T11:11:16+09:30</updated>
   <id>http://sharedinstance.net/</id>
   <author>
     <name><![CDATA[sharedInstance]]></name>
@@ -12,6 +12,80 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Adding simple toggles in the Settings root list]]></title>
+    <link href="http://sharedinstance.net/2014/04/settings-root-toggles/"/>
+    <updated>2014-04-18T11:04:22+09:30</updated>
+    <id>http://sharedinstance.net/2014/04/settings-root-toggles</id>
+    <content type="html"><![CDATA[<p>I just wanted to post a quick trick you can use to show a toggle in the root Settings list view.</p>
+
+<p>If you generate a new preference bundle project with NIC and open <code>entry.plist</code>, you&rsquo;ll find this:</p>
+
+<!--more-->
+
+
+<p>```xml
+&lt;?xml version=&ldquo;1.0&rdquo; encoding=&ldquo;UTF-8&rdquo;?>
+&lt;!DOCTYPE plist PUBLIC &ldquo;&ndash;//Apple//DTD PLIST 1.0//EN&rdquo; &ldquo;<a href="http://www.apple.com/DTDs/PropertyList-1.0.dtd">http://www.apple.com/DTDs/PropertyList-1.0.dtd</a>&rdquo;>
+<plist version="1.0">
+<dict></p>
+
+<pre><code>&lt;key&gt;entry&lt;/key&gt;
+&lt;dict&gt;
+    &lt;key&gt;bundle&lt;/key&gt;
+    &lt;string&gt;TypeStatus&lt;/string&gt;
+    &lt;key&gt;cell&lt;/key&gt;
+    &lt;string&gt;PSLinkCell&lt;/string&gt;
+    &lt;key&gt;detail&lt;/key&gt;
+    &lt;string&gt;HBTSListController&lt;/string&gt;
+    &lt;key&gt;icon&lt;/key&gt;
+    &lt;string&gt;icon.png&lt;/string&gt;
+    &lt;key&gt;isController&lt;/key&gt;
+    &lt;true/&gt;
+    &lt;key&gt;label&lt;/key&gt;
+    &lt;string&gt;TypeStatus&lt;/string&gt;
+&lt;/dict&gt;
+</code></pre>
+
+<p></dict>
+</plist>
+```</p>
+
+<p>Indeed, the cells shown in the root of Settings courtesy of PreferenceLoader are customizable. You could slap your whole settings panel there if you wanted (but that&rsquo;s clearly not a good idea). What you <em>could</em> do, though, is use it for tweaks whose settings consist of nothing more than an &ldquo;enabled&rdquo; toggle.</p>
+
+<p>```xml
+&lt;?xml version=&ldquo;1.0&rdquo; encoding=&ldquo;UTF-8&rdquo;?>
+&lt;!DOCTYPE plist PUBLIC &ldquo;&ndash;//Apple//DTD PLIST 1.0//EN&rdquo; &ldquo;<a href="http://www.apple.com/DTDs/PropertyList-1.0.dtd">http://www.apple.com/DTDs/PropertyList-1.0.dtd</a>&rdquo;>
+<plist version="1.0">
+<dict></p>
+
+<pre><code>&lt;key&gt;entry&lt;/key&gt;
+&lt;dict&gt;
+    &lt;key&gt;cell&lt;/key&gt;
+    &lt;string&gt;PSSwitchCell&lt;/string&gt;
+    &lt;key&gt;default&lt;/key&gt;
+    &lt;true/&gt;
+    &lt;key&gt;defaults&lt;/key&gt;
+    &lt;string&gt;ws.hbang.typestatus&lt;/string&gt;
+    &lt;key&gt;icon&lt;/key&gt;
+    &lt;string&gt;TypeStatus.png&lt;/string&gt;
+    &lt;key&gt;label&lt;/key&gt;
+    &lt;string&gt;TypeStatus&lt;/string&gt;
+    &lt;key&gt;PostNotification&lt;/key&gt;
+    &lt;string&gt;ws.hbang.typestatus/ReloadPrefs&lt;/string&gt;
+&lt;/dict&gt;
+</code></pre>
+
+<p></dict>
+</plist>
+```</p>
+
+<p>The icon can be dropped at <code>/Library/PreferenceLoader/Preferences/TypeStatus.png</code>. Unfortunately for themers, this means it can&rsquo;t be themed with WinterBoard.</p>
+
+<p>Ok, that&rsquo;s easy enough, but I mention this because if one or two tweaks did this, it would look pretty odd. If more tweaks do this, it&rsquo;ll look completely normal. And, as Ryan Petrich noted in his <a href="http://rpetri.ch/wwjc2014/rpetrich_wwjc2014.pdf">WWJC talk</a> a few days ago, every tweak should have settings &ndash; even if it&rsquo;s just a single on/off switch.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Debugging memory issues in Substrate tweaks]]></title>

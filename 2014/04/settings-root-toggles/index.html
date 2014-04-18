@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Adding simple toggles in the Settings root list - sharedInstance</title>
+  <meta name="author" content="sharedInstance">
+
+  
+  <meta name="description" content="I just wanted to post a quick trick you can use to show a toggle in the root Settings list view. If you generate a new preference bundle project with &hellip;">
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sharedinstance.net/2014/04/settings-root-toggles">
+  <link rel="icon" href="/favicon.png">
+  <link rel="stylesheet" href="/stylesheets/screen.css">
+  <link rel="alternate" href="/atom.xml" title="sharedInstance">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:700|Source+Code+Pro:400,700">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-28374943-5']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">sharedInstance</a></h1>
+  <p><a href="#navigation" title="Navigation" id="js-navbutton">&#x2261;</a></p>
+</hgroup>
+
+</header>
+  <nav role="navigation">
+    <div class="container">  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sharedinstance.net" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+
+<div class="clear"></div>
+</div>
+  </nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Adding simple toggles in the Settings root list</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-18T11:04:22+09:30" pubdate data-updated="true">Apr 18<span>th</span>, 2014</time>
+        
+           &mdash; <a href="#disqus_thread"
+             data-disqus-identifier="http://sharedinstance.net">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I just wanted to post a quick trick you can use to show a toggle in the root Settings list view.</p>
+
+<p>If you generate a new preference bundle project with NIC and open <code>entry.plist</code>, you&rsquo;ll find this:</p>
+
+<!--more-->
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+</span><span class='line'><span class="cp">&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;</span>
+</span><span class='line'><span class="nt">&lt;plist</span> <span class="na">version=</span><span class="s">&quot;1.0&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>entry<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>bundle<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>TypeStatus<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>cell<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>PSLinkCell<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>detail<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>HBTSListController<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>icon<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>icon.png<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>isController<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;true/&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>label<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>TypeStatus<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'><span class="nt">&lt;/plist&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Indeed, the cells shown in the root of Settings courtesy of PreferenceLoader are customizable. You could slap your whole settings panel there if you wanted (but that&rsquo;s clearly not a good idea). What you <em>could</em> do, though, is use it for tweaks whose settings consist of nothing more than an &ldquo;enabled&rdquo; toggle.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+</span><span class='line'><span class="cp">&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;</span>
+</span><span class='line'><span class="nt">&lt;plist</span> <span class="na">version=</span><span class="s">&quot;1.0&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>entry<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>cell<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>PSSwitchCell<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>default<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;true/&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>defaults<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>ws.hbang.typestatus<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>icon<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>TypeStatus.png<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>label<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>TypeStatus<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>PostNotification<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>ws.hbang.typestatus/ReloadPrefs<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'><span class="nt">&lt;/plist&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The icon can be dropped at <code>/Library/PreferenceLoader/Preferences/TypeStatus.png</code>. Unfortunately for themers, this means it can&rsquo;t be themed with WinterBoard.</p>
+
+<p>Ok, that&rsquo;s easy enough, but I mention this because if one or two tweaks did this, it would look pretty odd. If more tweaks do this, it&rsquo;ll look completely normal. And, as Ryan Petrich noted in his <a href="http://rpetri.ch/wwjc2014/rpetrich_wwjc2014.pdf">WWJC talk</a> a few days ago, every tweak should have settings &ndash; even if it&rsquo;s just a single on/off switch.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">kirb</span></span>
+ &mdash;
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-18T11:04:22+09:30" pubdate data-updated="true">Apr 18<span>th</span>, 2014</time> &mdash;
+      
+
+<span class="categories">
+  
+    <a class='category' href='/categories/sbblog/'>SBBlog</a>
+  
+</span>
+
+
+    </p>
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/2014/02/debugging-memory-issues/" title="Previous Post: Debugging memory issues in Substrate tweaks">&laquo; Debugging memory issues in Substrate tweaks</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section class="comments">
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013&ndash;2014, sharedInstance &mdash;
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script>
+      var disqus_shortname = 'sharedinstance';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sharedinstance.net/2014/04/settings-root-toggles/';
+        var disqus_url = 'http://sharedinstance.net/2014/04/settings-root-toggles/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+<script src="/javascripts/$.js"></script>
+<script src="/javascripts/script.js"></script>
+
+
+</body>
+</html>
