@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: SBBlog | sharedInstance]]></title>
+  <title><![CDATA[Category: sbblog | sharedInstance]]></title>
   <link href="http://sharedinstance.net/categories/sbblog/atom.xml" rel="self"/>
   <link href="http://sharedinstance.net/"/>
-  <updated>2014-11-26T18:05:43+10:30</updated>
+  <updated>2014-11-26T21:02:59+10:30</updated>
   <id>http://sharedinstance.net/</id>
   <author>
     <name><![CDATA[sharedInstance]]></name>
@@ -18,73 +18,67 @@
     <link href="http://sharedinstance.net/2014/11/settings-the-right-way/"/>
     <updated>2014-11-26T18:02:34+10:30</updated>
     <id>http://sharedinstance.net/2014/11/settings-the-right-way</id>
-    <content type="html"><![CDATA[<p>You might have noticed that tweak settings have suddenly started acting strange in iOS 8. This is because the <code>cfprefsd</code> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately &ndash; rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
+    <content type="html"><![CDATA[<p>You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html"><code>cfprefsd</code></a> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
+
+<!--more-->
+
 
 <p>It&rsquo;s actually really simple and I&rsquo;d argue a thousand times better than the hack all of us were using before this. First, you need to keep an instance of NSUserDefaults hanging around, and register your default preferences:</p>
 
-<p>```objc
-static NSString <em>const kHBCBPreferencesDomain = @&ldquo;ws.hbang.cobalia&rdquo;;
-static NSString </em>const kHBCBPreferencesEnabledKey = @&ldquo;Enabled&rdquo;;
-static NSString <em>const kHBCBPreferencesSwitchesKey = @&ldquo;Switches&rdquo;;
-static NSString </em>const kHBCBPreferencesSectionLabelKey = @&ldquo;SectionLabel&rdquo;;
-static NSString *const kHBCBPreferencesSwitchLabelsKey = @&ldquo;SwitchLabels&rdquo;;</p>
+<pre><code class="objc">static NSString *const kHBCBPreferencesDomain = @"ws.hbang.cobalia";
+static NSString *const kHBCBPreferencesEnabledKey = @"Enabled";
+static NSString *const kHBCBPreferencesSwitchesKey = @"Switches";
+static NSString *const kHBCBPreferencesSectionLabelKey = @"SectionLabel";
+static NSString *const kHBCBPreferencesSwitchLabelsKey = @"SwitchLabels";
 
-<p>NSUserDefaults *userDefaults;</p>
+NSUserDefaults *userDefaults;
 
-<p>%init {</p>
+%init {
+    userDefaults = [[NSUserDefaults alloc] _initWithSuiteName:kHBCBPreferencesDomain container:[NSURL URLWithString:@"/var/mobile"]];
 
-<pre><code>userDefaults = [[NSUserDefaults alloc] _initWithSuiteName:kHBCBPreferencesDomain container:[NSURL URLWithString:@"/var/mobile"]];
-
-[userDefaults registerDefaults:@{
-    kHBCBPreferencesEnabledKey: @YES,
-    kHBCBPreferencesSwitchesKey: @[ /* ... */ ]
-    kHBCBPreferencesSectionLabelKey: @YES,
-    kHBCBPreferencesSwitchLabelsKey: @YES
-}]
-</code></pre>
-
-<p>}
-```</p>
-
-<p>You&rsquo;ll probably need to define this private init method in a category interface like so:</p>
-
-<p>```objc
-@interface NSUserDefaults (Private)</p>
-
-<ul>
-<li>(instancetype)_initWithSuiteName:(NSString <em>)suiteName container:(NSURL </em>)container;</li>
-</ul>
-
-
-<p>@end
-```</p>
-
-<p>I use constants for strings that shouldn&rsquo;t ever change &ndash; you don&rsquo;t need to but I&rsquo;d recommend it.</p>
-
-<p>Now, it&rsquo;s as simple as a <code>[userDefaults boolForKey:@"Enabled"]</code> to grab a boolean, or <code>objectForKey:</code> for an Objective-C object, or any of the other methods <a href="https://developer.apple.com/Library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSUserDefaults_Class/index.html">the class supports</a>.</p>
-
-<p>Easy! If you notice, you don&rsquo;t even need to watch for a traditional Darwin notification, nor do you need to define <code>PostNotification</code> on your preferences specifiers. But what about libraries like AppList or Flipswitch that still write directly to the plist? The easiest thing you can do is a quick little trick to pass that back to <code>cfprefsd</code> to keep in memory. This is how I do it in <a href="https://github.com/hbang/Cobalia/blob/master/Tweak.xm">Cobalia</a>:</p>
-
-<p>```objc
-void HBCBPreferencesChanged() {</p>
-
-<pre><code>NSDictionary *preferences = [NSDictionary dictionaryWithContentsOfFile:[[[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES)[0] stringByAppendingPathComponent:@"Preferences"] stringByAppendingPathComponent:kHBCBPreferencesDomain] stringByAppendingPathExtension:@"plist"]];
-
-if (preferences[kHBCBPreferencesSwitchesKey]) {
-    [userDefaults setObject:preferences[kHBCBPreferencesSwitchesKey] forKey:kHBCBPreferencesSwitchesKey];
+    [userDefaults registerDefaults:@{
+        kHBCBPreferencesEnabledKey: @YES,
+        kHBCBPreferencesSwitchesKey: @[ /* ... */ ]
+        kHBCBPreferencesSectionLabelKey: @YES,
+        kHBCBPreferencesSwitchLabelsKey: @YES
+    }]
 }
 </code></pre>
 
-<p>}</p>
+<p>You&rsquo;ll probably need to define this private init method in a category interface like so:</p>
 
-<p>%ctor {</p>
+<pre><code class="objc">@interface NSUserDefaults (Private)
 
-<pre><code>HBCBPreferencesChanged();
-CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)HBCBPreferencesChanged, CFSTR("ws.hbang.cobalia/ReloadPrefs"), NULL, kNilOptions);
+- (instancetype)_initWithSuiteName:(NSString *)suiteName container:(NSURL *)container;
+
+@end
 </code></pre>
 
-<p>}
-```</p>
+<p>I use constants for strings that shouldn&rsquo;t ever change - you don&rsquo;t need to but I&rsquo;d recommend it.</p>
+
+<p>Now, it&rsquo;s as simple as a <code>[userDefaults boolForKey:@"Enabled"]</code> to grab a boolean, or <code>objectForKey:</code> for an Objective-C object, or any of the other methods <a href="https://developer.apple.com/Library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSUserDefaults_Class/index.html">the class supports</a>.</p>
+
+<p>Easy! If you notice, you don&rsquo;t even need to watch for a traditional Darwin notification, nor do you need to define <code>PostNotification</code> on your preferences specifiers. The important thing to note is you need to directly call the methods on <code>NSUserDefaults</code> where ever you need to get a preference value in your code. You shouldn&rsquo;t store the preferences in separate global variables as you might have done traditionally since then you need a Darwin notification and a callback function to update them - ruining the simplicity of this solution.</p>
+
+<p>But what about libraries like AppList or Flipswitch whose preferences API still write directly to the plist? The easiest thing you can do is a quick little trick to pass that back to <code>cfprefsd</code> to keep in memory. This is how I do it in <a href="https://github.com/hbang/Cobalia/blob/master/Tweak.xm">Cobalia</a>:</p>
+
+<pre><code class="objc">void HBCBPreferencesChanged() {
+    NSDictionary *preferences = [NSDictionary dictionaryWithContentsOfFile:[[[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES)[0] stringByAppendingPathComponent:@"Preferences"] stringByAppendingPathComponent:kHBCBPreferencesDomain] stringByAppendingPathExtension:@"plist"]];
+
+    if (preferences[kHBCBPreferencesSwitchesKey]) {
+        [userDefaults setObject:preferences[kHBCBPreferencesSwitchesKey] forKey:kHBCBPreferencesSwitchesKey];
+    }
+}
+
+%ctor {
+    HBCBPreferencesChanged();
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)HBCBPreferencesChanged, CFSTR("ws.hbang.cobalia/ReloadPrefs"), NULL, kNilOptions);
+}
+</code></pre>
+
+<p>Obviously you&rsquo;ll also need to set the appropriate key in your preference specifiers for a Darwin notification to be posted with the name you provide.</p>
+
+<p>If you&rsquo;d like to see what else people are using for their tweaks, there are a few others you can explore that are listed on the iPhone Dev Wiki&rsquo;s <a href="http://iphonedevwiki.net/index.php/Updating_extensions_for_iOS_8#Preference_saving">updating extensions for iOS 8</a> article. To me, this is the most simple and elegant, and almost exactly what you&rsquo;d ideally be using anyway in a standard iOS or OS X application - but you&rsquo;re of course allowed to use whichever looks best to you.</p>
 ]]></content>
   </entry>
   
@@ -100,65 +94,57 @@ CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NUL
 <!--more-->
 
 
-<p>```xml
-&lt;?xml version=&ldquo;1.0&rdquo; encoding=&ldquo;UTF-8&rdquo;?>
-&lt;!DOCTYPE plist PUBLIC &ldquo;&ndash;//Apple//DTD PLIST 1.0//EN&rdquo; &ldquo;<a href="http://www.apple.com/DTDs/PropertyList-1.0.dtd">http://www.apple.com/DTDs/PropertyList-1.0.dtd</a>&rdquo;>
-<plist version="1.0">
-<dict></p>
-
-<pre><code>&lt;key&gt;entry&lt;/key&gt;
+<pre><code class="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;
 &lt;dict&gt;
-    &lt;key&gt;bundle&lt;/key&gt;
-    &lt;string&gt;TypeStatus&lt;/string&gt;
-    &lt;key&gt;cell&lt;/key&gt;
-    &lt;string&gt;PSLinkCell&lt;/string&gt;
-    &lt;key&gt;detail&lt;/key&gt;
-    &lt;string&gt;HBTSListController&lt;/string&gt;
-    &lt;key&gt;icon&lt;/key&gt;
-    &lt;string&gt;icon.png&lt;/string&gt;
-    &lt;key&gt;isController&lt;/key&gt;
-    &lt;true/&gt;
-    &lt;key&gt;label&lt;/key&gt;
-    &lt;string&gt;TypeStatus&lt;/string&gt;
+    &lt;key&gt;entry&lt;/key&gt;
+    &lt;dict&gt;
+        &lt;key&gt;bundle&lt;/key&gt;
+        &lt;string&gt;TypeStatus&lt;/string&gt;
+        &lt;key&gt;cell&lt;/key&gt;
+        &lt;string&gt;PSLinkCell&lt;/string&gt;
+        &lt;key&gt;detail&lt;/key&gt;
+        &lt;string&gt;HBTSListController&lt;/string&gt;
+        &lt;key&gt;icon&lt;/key&gt;
+        &lt;string&gt;icon.png&lt;/string&gt;
+        &lt;key&gt;isController&lt;/key&gt;
+        &lt;true/&gt;
+        &lt;key&gt;label&lt;/key&gt;
+        &lt;string&gt;TypeStatus&lt;/string&gt;
+    &lt;/dict&gt;
 &lt;/dict&gt;
+&lt;/plist&gt;
 </code></pre>
-
-<p></dict>
-</plist>
-```</p>
 
 <p>Indeed, the cells shown in the root of Settings courtesy of PreferenceLoader are customizable. You could slap your whole settings panel there if you wanted (but that&rsquo;s clearly not a good idea). What you <em>could</em> do, though, is use it for tweaks whose settings consist of nothing more than an &ldquo;enabled&rdquo; toggle.</p>
 
-<p>```xml
-&lt;?xml version=&ldquo;1.0&rdquo; encoding=&ldquo;UTF-8&rdquo;?>
-&lt;!DOCTYPE plist PUBLIC &ldquo;&ndash;//Apple//DTD PLIST 1.0//EN&rdquo; &ldquo;<a href="http://www.apple.com/DTDs/PropertyList-1.0.dtd">http://www.apple.com/DTDs/PropertyList-1.0.dtd</a>&rdquo;>
-<plist version="1.0">
-<dict></p>
-
-<pre><code>&lt;key&gt;entry&lt;/key&gt;
+<pre><code class="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;
 &lt;dict&gt;
-    &lt;key&gt;cell&lt;/key&gt;
-    &lt;string&gt;PSSwitchCell&lt;/string&gt;
-    &lt;key&gt;default&lt;/key&gt;
-    &lt;true/&gt;
-    &lt;key&gt;defaults&lt;/key&gt;
-    &lt;string&gt;ws.hbang.typestatus&lt;/string&gt;
-    &lt;key&gt;icon&lt;/key&gt;
-    &lt;string&gt;TypeStatus.png&lt;/string&gt;
-    &lt;key&gt;label&lt;/key&gt;
-    &lt;string&gt;TypeStatus&lt;/string&gt;
-    &lt;key&gt;PostNotification&lt;/key&gt;
-    &lt;string&gt;ws.hbang.typestatus/ReloadPrefs&lt;/string&gt;
+    &lt;key&gt;entry&lt;/key&gt;
+    &lt;dict&gt;
+        &lt;key&gt;cell&lt;/key&gt;
+        &lt;string&gt;PSSwitchCell&lt;/string&gt;
+        &lt;key&gt;default&lt;/key&gt;
+        &lt;true/&gt;
+        &lt;key&gt;defaults&lt;/key&gt;
+        &lt;string&gt;ws.hbang.typestatus&lt;/string&gt;
+        &lt;key&gt;icon&lt;/key&gt;
+        &lt;string&gt;TypeStatus.png&lt;/string&gt;
+        &lt;key&gt;label&lt;/key&gt;
+        &lt;string&gt;TypeStatus&lt;/string&gt;
+        &lt;key&gt;PostNotification&lt;/key&gt;
+        &lt;string&gt;ws.hbang.typestatus/ReloadPrefs&lt;/string&gt;
+    &lt;/dict&gt;
 &lt;/dict&gt;
+&lt;/plist&gt;
 </code></pre>
-
-<p></dict>
-</plist>
-```</p>
 
 <p>The icon can be dropped at <code>/Library/PreferenceLoader/Preferences/TypeStatus.png</code>. Unfortunately for themers, this means it can&rsquo;t be themed with WinterBoard.</p>
 
-<p>Ok, that&rsquo;s easy enough, but I mention this because if one or two tweaks did this, it would look pretty odd. If more tweaks do this, it&rsquo;ll look completely normal. And, as Ryan Petrich noted in his <a href="http://rpetri.ch/wwjc2014/rpetrich_wwjc2014.pdf">WWJC talk</a> a few days ago, every tweak should have settings &ndash; even if it&rsquo;s just a single on/off switch.</p>
+<p>Ok, that&rsquo;s easy enough, but I mention this because if one or two tweaks did this, it would look pretty odd. If more tweaks do this, it&rsquo;ll look completely normal. And, as Ryan Petrich noted in his <a href="http://rpetri.ch/wwjc2014/rpetrich_wwjc2014.pdf">WWJC talk</a> a few days ago, every tweak should have settings - even if it&rsquo;s just a single on/off switch.</p>
 ]]></content>
   </entry>
   
@@ -174,29 +160,22 @@ CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NUL
 
 <p>One useful trick is to override <code>- (void)dealloc</code> in your subclasses and write a message to the syslog; that way you can make sure your objects are actually getting freed after usage. If dealloc is not getting called, you probably need to release that object once more. Keep in mind you should remove those logs for release builds of your tweaks. An easy way to do this is by adding this:</p>
 
-<p>``` objc</p>
-
-<h1>ifndef DEBUG</h1>
-
-<h1>define NSLog</h1>
-
-<h1>endif</h1>
-
-<p>```</p>
+<pre><code class="objc">#ifndef DEBUG
+#define NSLog
+#endif
+</code></pre>
 
 <p>On top of your tweaks makefile, add <code>DEBUG=1</code> to enable NSLogs, set it to zero or remove the line to disable all logs. You can also pass it to make at the command line, for instance: <code>make package install DEBUG=1</code>.</p>
 
 <p>Another extremely useful trick if you experience crashes from use-after-free issues is to enable zombie objects. To enable those in any process you want (e.x. SpringBoard), ssh into your device, attach to the process with <code>cycript -p processname</code> first. Then declare _CFEnableZombies() in cycript like so:</p>
 
-<p><code>javascript
-_CFEnableZombies = new Functor(dlsym(RTLD_DEFAULT, "_CFEnableZombies"), "v");
-</code></p>
+<pre><code class="javascript">_CFEnableZombies = new Functor(dlsym(RTLD_DEFAULT, "_CFEnableZombies"), "v");
+</code></pre>
 
 <p>Now you can enable zombie objects simply by calling <code>_CFEnableZombies()</code>. Open up a syslog and keep and eye on it while the memory crash happens. You’ll see a message like this one:</p>
 
-<p><code>plain
-&lt;Error&gt;: *** -[UIWindow methodSignatureForSelector:]: message sent to deallocated instance 0x162a7730`
-</code></p>
+<pre><code class="plain">&lt;Error&gt;: *** -[UIWindow methodSignatureForSelector:]: message sent to deallocated instance 0x162a7730`
+</code></pre>
 
 <p>There we go! Now just search for the (in this example) <code>methodSignatureForSelector:</code> in your code and fix the memory crash!</p>
 
@@ -226,15 +205,14 @@ _CFEnableZombies = new Functor(dlsym(RTLD_DEFAULT, "_CFEnableZombies"), "v");
 
 <p>The easiest way to fix this issue is simply to start using the iOS 7 SDK, and force theos to build your tweaks for both armv7 and arm64. If you have Xcode 5, you&rsquo;ve most likely already completed the first part (if not, head to the App Store and update Xcode!). The second part is still fairly easy: open your project&rsquo;s makefile and add this line above the first <code>include</code>:</p>
 
-<p><code>make
-ARCHS = armv7 arm64
-</code></p>
+<pre><code class="make">ARCHS = armv7 arm64
+</code></pre>
 
 <p>Finally, download <a href="http://cdn.hbang.ws/dl/libsubstrate_arm64.dylib">this build of the libsubstrate.dylib stub</a> (contains armv6/armv7/armv7s/arm64 as well as i386 for OS X and x86_64 for iOS Simulator) and replace the existing file at $THEOS/lib/libsubstrate.dylib. That&rsquo;s it!</p>
 
 <h2>The slightly more complex way</h2>
 
-<p>It may not be viable to compile only against the iOS 7 SDK, since that might mean dropping support for iOS versions before 4.3.  If you have a preference bundle, wee app, or anything else that is loaded into an arm64 process, don&rsquo;t forget that you&rsquo;ll need to perform the same thing to its binaries too. There are tons of goodies available on <a href="http://iphonedevwiki.net/index.php/Updating_extensions_for_iOS_7#Tweaks_that_do_need_iOS_4.2.1_and_below_compatibility">the dev wiki</a> for this situation &ndash; and also has tips for issues that you may come across.</p>
+<p>It may not be viable to compile only against the iOS 7 SDK, since that might mean dropping support for iOS versions before 4.3.  If you have a preference bundle, wee app, or anything else that is loaded into an arm64 process, don&rsquo;t forget that you&rsquo;ll need to perform the same thing to its binaries too. There are tons of goodies available on <a href="http://iphonedevwiki.net/index.php/Updating_extensions_for_iOS_7#Tweaks_that_do_need_iOS_4.2.1_and_below_compatibility">the dev wiki</a> for this situation - and also has tips for issues that you may come across.</p>
 ]]></content>
   </entry>
   
@@ -252,7 +230,7 @@ ARCHS = armv7 arm64
 
 <p><a href="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm.png"><img src="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm-1024x766.png" alt="Cygwin website" /></a></p>
 
-<p>The toolchain requires Cygwin, an awesome piece of software that provides a Unix environment on Windows. Grab the appropriate setup program for your system architecture from <a href="https://sourceware.org/cygwin/install.html">cygwin.com/install.html</a> and run it. You&rsquo;ll be greeted by the standard setup welcome page, followed by a request for where to download packages from. You&rsquo;ll want to stick with the default &ldquo;Install from Internet&rdquo;. Next your way through until you get a list of sources &ndash; you can pick any of them; preferably one closer to you. After downloading a list of packages, the setup maximizes to show you a full list of available packages:</p>
+<p>The toolchain requires Cygwin, an awesome piece of software that provides a Unix environment on Windows. Grab the appropriate setup program for your system architecture from <a href="https://sourceware.org/cygwin/install.html">cygwin.com/install.html</a> and run it. You&rsquo;ll be greeted by the standard setup welcome page, followed by a request for where to download packages from. You&rsquo;ll want to stick with the default &ldquo;Install from Internet&rdquo;. Next your way through until you get a list of sources - you can pick any of them; preferably one closer to you. After downloading a list of packages, the setup maximizes to show you a full list of available packages:</p>
 
 <p><a href="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png"><img src="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png" alt="Package list" /></a></p>
 
@@ -276,27 +254,25 @@ ARCHS = armv7 arm64
 
 <p><a href="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png"><img src="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png" alt="Cygwin terminal" /></a></p>
 
-<p><small>(I&rsquo;ve customised mine &ndash; yours will have a different font and size.)</small></p>
+<p><small>(I&rsquo;ve customised mine - yours will have a different font and size.)</small></p>
 
 <p>From here, we&rsquo;ll create the directory where theos will live in, and clone it from coolstar&rsquo;s fork:</p>
 
-<p><code>bash
-mkdir -p /opt
+<pre><code class="bash">mkdir -p /opt
 cd /opt
 git clone -b windows git://github.com/coolstar/theos.git
-</code></p>
+</code></pre>
 
 <p>Next up is the toolchain itself, which will take a while&hellip;</p>
 
-<p><code>bash
-git clone -b x86_64 git://github.com/coolstar/iOSToolchain4Win.git theos/toolchain/windows/iphone
-</code></p>
+<pre><code class="bash">git clone -b x86_64 git://github.com/coolstar/iOSToolchain4Win.git theos/toolchain/windows/iphone
+</code></pre>
 
 <p>If your copy of Windows is not 64-bit, replace <code>x86_64</code> with <code>master</code>.</p>
 
 <h2>SDK</h2>
 
-<p>Once that&rsquo;s done, you&rsquo;ll need to download an SDK. Legally, you can only do this by downloading an Xcode DMG image from Apple, so head to their <a href="https://developer.apple.com/downloads/index.action">developer downloads page</a> (login required) and download an Xcode version of your choice &ndash; try Xcode 5 for the iOS 7 SDK and 4.6.3 for iOS 6.1. Meanwhile, you&rsquo;ll need to download and install <a href="http://www.acutesystems.com">TransMac</a> so that you can extract files from the DMG.</p>
+<p>Once that&rsquo;s done, you&rsquo;ll need to download an SDK. Legally, you can only do this by downloading an Xcode DMG image from Apple, so head to their <a href="https://developer.apple.com/downloads/index.action">developer downloads page</a> (login required) and download an Xcode version of your choice - try Xcode 5 for the iOS 7 SDK and 4.6.3 for iOS 6.1. Meanwhile, you&rsquo;ll need to download and install <a href="http://www.acutesystems.com">TransMac</a> so that you can extract files from the DMG.</p>
 
 <p>Once the download is done, open the file. From there, click the DMG name in the sidebar, then navigate your way through to <code>Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs</code>. Right click <code>iPhoneOS6.1.sdk</code> and choose &ldquo;Copy To&rdquo;.</p>
 
@@ -304,44 +280,37 @@ git clone -b x86_64 git://github.com/coolstar/iOSToolchain4Win.git theos/toolcha
 
 <p><small>(I&rsquo;m using Xcode 4.4.1, but the instructions will always be the same.)</small></p>
 
-<p>Here, you&rsquo;ll want to enter the path to Cygwin (unless you changed it, that&rsquo;s <code>C:\cygwin</code> on 32-bit Windows, or <code>C:\cygwin64</code> on 64-bit Windows), followed by the path to theos' SDK directory, and the directory name: <code>opt\theos\sdks\iPhoneOS6.1.sdk</code>. Hit OK and wait for the magic to happen.</p>
+<p>Here, you&rsquo;ll want to enter the path to Cygwin (unless you changed it, that&rsquo;s <code>C:\cygwin</code> on 32-bit Windows, or <code>C:\cygwin64</code> on 64-bit Windows), followed by the path to theos&#8217; SDK directory, and the directory name: <code>opt\theos\sdks\iPhoneOS6.1.sdk</code>. Hit OK and wait for the magic to happen.</p>
 
 <h2>Try it out!</h2>
 
 <p>Everything should work as you expect it to now. Let&rsquo;s try building a test tweak. Before you do, though, you should add theos environment variables to your <code>.bash_profile</code> (or equivalent for your shell). Open <code>C:\cygwin\home\...username...\.bash_profile</code> in your favorite editor and add this on the very last line, replacing the device name with your own device&rsquo;s, replacing spaces with dashes, or its IP address:</p>
 
-<p><code>bash
-export THEOS=/opt/theos
+<pre><code class="bash">export THEOS=/opt/theos
 export THEOS_DEVICE_IP=kirbpad.local THEOS_DEVICE_PORT=22
-</code></p>
+</code></pre>
 
 <p>Load this into the shell with <code>. ~/.bash_profile</code>, or close the terminal window and launch a new one. <code>cd</code> to where you would like to store your theos projects (note that your C: drive lives at <code>/cygdrive/c</code> under Cygwin), or just create a new directory for that under your cygwin home directory:</p>
 
-<p><code>bash
-cd
+<pre><code class="bash">cd
 mkdir projects
 cd projects
-</code></p>
+</code></pre>
 
 <p>Now run <code>$THEOS/bin/nic.pl</code> to summon the NIC. Select a tweak and provide the rest of the info. Now open Tweak.xm and paste in:</p>
 
-<p>``` objc
-%ctor {</p>
-
-<pre><code>NSLog(@"It works!");
+<pre><code class="objc">%ctor {
+    NSLog(@"It works!");
+}
 </code></pre>
-
-<p>}
-```</p>
 
 <p>Get ready to <a href="http://gist.io/5128340">watch your syslog</a>, and run <code>make package install</code> inside the project directory. If all goes well, you&rsquo;ll see this somewhere among the other messages in the syslog:</p>
 
-<p><code>plain
-Dec 19 00:33:20 kirbpad SpringBoard[52026] &lt;Notice&gt;: MS:Notice: Loading: /Library/MobileSubstrate/DynamicLibraries/TestTweak.dylib
+<pre><code class="plain">Dec 19 00:33:20 kirbpad SpringBoard[52026] &lt;Notice&gt;: MS:Notice: Loading: /Library/MobileSubstrate/DynamicLibraries/TestTweak.dylib
 Dec 19 00:33:20 kirbpad SpringBoard[52026] &lt;Warning&gt;: It works!
-</code></p>
+</code></pre>
 
-<p>Have fun &ndash; and don&rsquo;t forget to thank <a href="http://coolstar.org">coolstar</a> for being awesome.</p>
+<p>Have fun - and don&rsquo;t forget to thank <a href="http://coolstar.org">coolstar</a> for being awesome.</p>
 ]]></content>
   </entry>
   

@@ -7,7 +7,7 @@
   <meta name="author" content="sharedInstance">
 
   
-  <meta name="description" content="You might have noticed that tweak settings have suddenly started acting strange in iOS 8. This is because the cfprefsd concept from OS X (as long ago &hellip;">
+  <meta name="description" content="You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the cfprefsd concept from OS X (as long &hellip;">
   
 
   <meta name="HandheldFriendly" content="True">
@@ -89,7 +89,7 @@
   
 
 
-<time datetime="2014-11-26T18:02:34+10:30" pubdate data-updated="true">Nov 26<span>th</span>, 2014</time>
+<time datetime="2014-11-26T18:02:34+10:30" pubdate data-updated="true"></time>
         
            &mdash; <a href="/2014/11/settings-the-right-way/#disqus_thread"
              data-disqus-identifier="http://sharedinstance.net/2014/11/settings-the-right-way/">Comments</a>
@@ -99,98 +99,14 @@
   </header>
 
 
-  <div class="entry-content"><p>You might have noticed that tweak settings have suddenly started acting strange in iOS 8. This is because the <code>cfprefsd</code> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately &ndash; rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
-
-<p>It&rsquo;s actually really simple and I&rsquo;d argue a thousand times better than the hack all of us were using before this. First, you need to keep an instance of NSUserDefaults hanging around, and register your default preferences:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesDomain</span> <span class="o">=</span> <span class="s">@&quot;ws.hbang.cobalia&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesEnabledKey</span> <span class="o">=</span> <span class="s">@&quot;Enabled&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSwitchesKey</span> <span class="o">=</span> <span class="s">@&quot;Switches&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSectionLabelKey</span> <span class="o">=</span> <span class="s">@&quot;SectionLabel&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSwitchLabelsKey</span> <span class="o">=</span> <span class="s">@&quot;SwitchLabels&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">NSUserDefaults</span> <span class="o">*</span><span class="n">userDefaults</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">%</span><span class="n">init</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">userDefaults</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSUserDefaults</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">_initWithSuiteName:</span><span class="n">kHBCBPreferencesDomain</span> <span class="nl">container:</span><span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="s">@&quot;/var/mobile&quot;</span><span class="p">]];</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="p">[</span><span class="n">userDefaults</span> <span class="nl">registerDefaults:</span><span class="err">@</span><span class="p">{</span>
-</span><span class='line'>      <span class="nl">kHBCBPreferencesEnabledKey:</span> <span class="err">@</span><span class="n">YES</span><span class="p">,</span>
-</span><span class='line'>      <span class="nl">kHBCBPreferencesSwitchesKey:</span> <span class="err">@</span><span class="p">[</span> <span class="cm">/* ... */</span> <span class="p">]</span>
-</span><span class='line'>      <span class="nl">kHBCBPreferencesSectionLabelKey:</span> <span class="err">@</span><span class="n">YES</span><span class="p">,</span>
-</span><span class='line'>      <span class="nl">kHBCBPreferencesSwitchLabelsKey:</span> <span class="err">@</span><span class="n">YES</span>
-</span><span class='line'>  <span class="p">}]</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You&rsquo;ll probably need to define this private init method in a category interface like so:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@interface</span> <span class="nc">NSUserDefaults</span> <span class="nl">(Private)</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">_initWithSuiteName:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">suiteName</span> <span class="nf">container:</span><span class="p">(</span><span class="n">NSURL</span> <span class="o">*</span><span class="p">)</span><span class="nv">container</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">@end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I use constants for strings that shouldn&rsquo;t ever change &ndash; you don&rsquo;t need to but I&rsquo;d recommend it.</p>
-
-<p>Now, it&rsquo;s as simple as a <code>[userDefaults boolForKey:@"Enabled"]</code> to grab a boolean, or <code>objectForKey:</code> for an Objective-C object, or any of the other methods <a href="https://developer.apple.com/Library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSUserDefaults_Class/index.html">the class supports</a>.</p>
-
-<p>Easy! If you notice, you don&rsquo;t even need to watch for a traditional Darwin notification, nor do you need to define <code>PostNotification</code> on your preferences specifiers. But what about libraries like AppList or Flipswitch that still write directly to the plist? The easiest thing you can do is a quick little trick to pass that back to <code>cfprefsd</code> to keep in memory. This is how I do it in <a href="https://github.com/hbang/Cobalia/blob/master/Tweak.xm">Cobalia</a>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="kt">void</span> <span class="nf">HBCBPreferencesChanged</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">NSDictionary</span> <span class="o">*</span><span class="n">preferences</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSDictionary</span> <span class="nl">dictionaryWithContentsOfFile:</span><span class="p">[[[</span><span class="n">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="n">NSLibraryDirectory</span><span class="p">,</span> <span class="n">NSUserDomainMask</span><span class="p">,</span> <span class="n">YES</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="nl">stringByAppendingPathComponent:</span><span class="s">@&quot;Preferences&quot;</span><span class="p">]</span> <span class="nl">stringByAppendingPathComponent:</span><span class="n">kHBCBPreferencesDomain</span><span class="p">]</span> <span class="nl">stringByAppendingPathExtension:</span><span class="s">@&quot;plist&quot;</span><span class="p">]];</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">preferences</span><span class="p">[</span><span class="n">kHBCBPreferencesSwitchesKey</span><span class="p">])</span> <span class="p">{</span>
-</span><span class='line'>      <span class="p">[</span><span class="n">userDefaults</span> <span class="nl">setObject:</span><span class="n">preferences</span><span class="p">[</span><span class="n">kHBCBPreferencesSwitchesKey</span><span class="p">]</span> <span class="nl">forKey:</span><span class="n">kHBCBPreferencesSwitchesKey</span><span class="p">];</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">%</span><span class="n">ctor</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">HBCBPreferencesChanged</span><span class="p">();</span>
-</span><span class='line'>  <span class="n">CFNotificationCenterAddObserver</span><span class="p">(</span><span class="n">CFNotificationCenterGetDarwinNotifyCenter</span><span class="p">(),</span> <span class="nb">NULL</span><span class="p">,</span> <span class="p">(</span><span class="n">CFNotificationCallback</span><span class="p">)</span><span class="n">HBCBPreferencesChanged</span><span class="p">,</span> <span class="n">CFSTR</span><span class="p">(</span><span class="s">&quot;ws.hbang.cobalia/ReloadPrefs&quot;</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">kNilOptions</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
+  <div class="entry-content"><p>You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html"><code>cfprefsd</code></a> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
 
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/2014/11/settings-the-right-way/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -217,7 +133,7 @@
   
 
 
-<time datetime="2014-04-18T11:04:22+09:30" pubdate data-updated="true">Apr 18<span>th</span>, 2014</time>
+<time datetime="2014-04-18T11:04:22+09:30" pubdate data-updated="true"></time>
         
            &mdash; <a href="/2014/04/settings-root-toggles/#disqus_thread"
              data-disqus-identifier="http://sharedinstance.net/2014/04/settings-root-toggles/">Comments</a>
@@ -263,7 +179,7 @@
   
 
 
-<time datetime="2014-02-10T00:00:00+10:30" pubdate data-updated="true">Feb 10<span>th</span>, 2014</time>
+<time datetime="2014-02-10T00:00:00+10:30" pubdate data-updated="true"></time>
         
            &mdash; <a href="/2014/02/debugging-memory-issues/#disqus_thread"
              data-disqus-identifier="http://sharedinstance.net/2014/02/debugging-memory-issues/">Comments</a>
@@ -307,7 +223,7 @@
   
 
 
-<time datetime="2013-12-24T00:00:00+10:30" pubdate data-updated="true">Dec 24<span>th</span>, 2013</time>
+<time datetime="2013-12-24T00:00:00+10:30" pubdate data-updated="true"></time>
         
            &mdash; <a href="/2013/12/how-to-support-arm64/#disqus_thread"
              data-disqus-identifier="http://sharedinstance.net/2013/12/how-to-support-arm64/">Comments</a>
@@ -351,7 +267,7 @@
   
 
 
-<time datetime="2013-12-24T00:00:00+10:30" pubdate data-updated="true">Dec 24<span>th</span>, 2013</time>
+<time datetime="2013-12-24T00:00:00+10:30" pubdate data-updated="true"></time>
         
            &mdash; <a href="/2013/12/build-on-windows/#disqus_thread"
              data-disqus-identifier="http://sharedinstance.net/2013/12/build-on-windows/">Comments</a>
@@ -395,7 +311,7 @@
   
 
 
-<time datetime="2013-10-21T00:00:00+10:30" pubdate data-updated="true">Oct 21<span>st</span>, 2013</time>
+<time datetime="2013-10-21T00:00:00+10:30" pubdate data-updated="true"></time>
         
            &mdash; <a href="/2013/10/running-tweaks-in-simulator/#disqus_thread"
              data-disqus-identifier="http://sharedinstance.net/2013/10/running-tweaks-in-simulator/">Comments</a>
@@ -441,7 +357,7 @@
   
 
 
-<time datetime="2013-10-10T00:00:00+10:30" pubdate data-updated="true">Oct 10<span>th</span>, 2013</time>
+<time datetime="2013-10-10T00:00:00+10:30" pubdate data-updated="true"></time>
         
            &mdash; <a href="/2013/10/welcome-to-sharedinstance/#disqus_thread"
              data-disqus-identifier="http://sharedinstance.net/2013/10/welcome-to-sharedinstance/">Comments</a>

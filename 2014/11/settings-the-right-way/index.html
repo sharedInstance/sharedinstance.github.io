@@ -7,7 +7,7 @@
   <meta name="author" content="sharedInstance">
 
   
-  <meta name="description" content="You might have noticed that tweak settings have suddenly started acting strange in iOS 8. This is because the cfprefsd concept from OS X (as long ago &hellip;">
+  <meta name="description" content="You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the cfprefsd concept from OS X (as long &hellip;">
   
 
   <meta name="HandheldFriendly" content="True">
@@ -86,7 +86,7 @@
   
 
 
-<time datetime="2014-11-26T18:02:34+10:30" pubdate data-updated="true">Nov 26<span>th</span>, 2014</time>
+<time datetime="2014-11-26T18:02:34+10:30" pubdate data-updated="true"></time>
         
            &mdash; <a href="#disqus_thread"
              data-disqus-identifier="http://sharedinstance.net">Comments</a>
@@ -96,7 +96,10 @@
   </header>
 
 
-<div class="entry-content"><p>You might have noticed that tweak settings have suddenly started acting strange in iOS 8. This is because the <code>cfprefsd</code> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately &ndash; rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
+<div class="entry-content"><p>You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html"><code>cfprefsd</code></a> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
+
+<!--more-->
+
 
 <p>It&rsquo;s actually really simple and I&rsquo;d argue a thousand times better than the hack all of us were using before this. First, you need to keep an instance of NSUserDefaults hanging around, and register your default preferences:</p>
 
@@ -154,11 +157,13 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>I use constants for strings that shouldn&rsquo;t ever change &ndash; you don&rsquo;t need to but I&rsquo;d recommend it.</p>
+<p>I use constants for strings that shouldn&rsquo;t ever change - you don&rsquo;t need to but I&rsquo;d recommend it.</p>
 
 <p>Now, it&rsquo;s as simple as a <code>[userDefaults boolForKey:@"Enabled"]</code> to grab a boolean, or <code>objectForKey:</code> for an Objective-C object, or any of the other methods <a href="https://developer.apple.com/Library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSUserDefaults_Class/index.html">the class supports</a>.</p>
 
-<p>Easy! If you notice, you don&rsquo;t even need to watch for a traditional Darwin notification, nor do you need to define <code>PostNotification</code> on your preferences specifiers. But what about libraries like AppList or Flipswitch that still write directly to the plist? The easiest thing you can do is a quick little trick to pass that back to <code>cfprefsd</code> to keep in memory. This is how I do it in <a href="https://github.com/hbang/Cobalia/blob/master/Tweak.xm">Cobalia</a>:</p>
+<p>Easy! If you notice, you don&rsquo;t even need to watch for a traditional Darwin notification, nor do you need to define <code>PostNotification</code> on your preferences specifiers. The important thing to note is you need to directly call the methods on <code>NSUserDefaults</code> where ever you need to get a preference value in your code. You shouldn&rsquo;t store the preferences in separate global variables as you might have done traditionally since then you need a Darwin notification and a callback function to update them - ruining the simplicity of this solution.</p>
+
+<p>But what about libraries like AppList or Flipswitch whose preferences API still write directly to the plist? The easiest thing you can do is a quick little trick to pass that back to <code>cfprefsd</code> to keep in memory. This is how I do it in <a href="https://github.com/hbang/Cobalia/blob/master/Tweak.xm">Cobalia</a>:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -186,6 +191,10 @@
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
+
+<p>Obviously you&rsquo;ll also need to set the appropriate key in your preference specifiers for a Darwin notification to be posted with the name you provide.</p>
+
+<p>If you&rsquo;d like to see what else people are using for their tweaks, there are a few others you can explore that are listed on the iPhone Dev Wiki&rsquo;s <a href="http://iphonedevwiki.net/index.php/Updating_extensions_for_iOS_8#Preference_saving">updating extensions for iOS 8</a> article. To me, this is the most simple and elegant, and almost exactly what you&rsquo;d ideally be using anyway in a standard iOS or OS X application - but you&rsquo;re of course allowed to use whichever looks best to you.</p>
 </div>
 
 
@@ -208,12 +217,12 @@
   
 
 
-<time datetime="2014-11-26T18:02:34+10:30" pubdate data-updated="true">Nov 26<span>th</span>, 2014</time> &mdash;
+<time datetime="2014-11-26T18:02:34+10:30" pubdate data-updated="true"></time> &mdash;
       
 
 <span class="categories">
   
-    <a class='category' href='/categories/sbblog/'>SBBlog</a>
+    <a class='category' href='/categories/sbblog/'>sbblog</a>
   
 </span>
 
