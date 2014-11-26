@@ -8,6 +8,7 @@ author: kirb
 ---
 
 You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the [`cfprefsd`](https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html) concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it's kept in memory by `cfprefsd` and only flushed to disk when the appropriate process (or `cfprefsd` itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?
+<!--more-->
 
 It's actually really simple and I'd argue a thousand times better than the hack all of us were using before this. First, you need to keep an instance of NSUserDefaults hanging around, and register your default preferences:
 
