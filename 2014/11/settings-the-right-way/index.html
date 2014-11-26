@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>sharedInstance</title>
+  <title>Doing tweak settings the right way - sharedInstance</title>
   <meta name="author" content="sharedInstance">
 
   
@@ -15,7 +15,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://sharedinstance.net">
+  <link rel="canonical" href="http://sharedinstance.net/2014/11/settings-the-right-way">
   <link rel="icon" href="/favicon.png">
   <link rel="stylesheet" href="/stylesheets/screen.css">
   <link rel="alternate" href="/atom.xml" title="sharedInstance" type="application/atom+xml">
@@ -65,15 +65,12 @@
   </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
     
-      <h1 class="entry-title"><a href="/2014/11/settings-the-right-way/">Doing tweak settings the right way</a></h1>
+      <h1 class="entry-title">Doing tweak settings the right way</h1>
     
     
       <p class="meta">
@@ -91,15 +88,15 @@
 
 <time datetime="2014-11-26T18:02:34+10:30" pubdate data-updated="true">Nov 26<span>th</span>, 2014</time>
         
-           &mdash; <a href="/2014/11/settings-the-right-way/#disqus_thread"
-             data-disqus-identifier="http://sharedinstance.net/2014/11/settings-the-right-way/">Comments</a>
+           &mdash; <a href="#disqus_thread"
+             data-disqus-identifier="http://sharedinstance.net">Comments</a>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>You might have noticed that tweak settings have suddenly started acting strange in iOS 8. This is because the <code>cfprefsd</code> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately &ndash; rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
+<div class="entry-content"><p>You might have noticed that tweak settings have suddenly started acting strange in iOS 8. This is because the <code>cfprefsd</code> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately &ndash; rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
 
 <p>It&rsquo;s actually really simple and I&rsquo;d argue a thousand times better than the hack all of us were using before this. First, you need to keep an instance of NSUserDefaults hanging around, and register your default preferences:</p>
 
@@ -190,68 +187,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/2014/04/settings-root-toggles/">Adding simple toggles in the Settings root list</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
   
 
-
-<time datetime="2014-04-18T11:04:22+09:30" pubdate data-updated="true">Apr 18<span>th</span>, 2014</time>
-        
-           &mdash; <a href="/2014/04/settings-root-toggles/#disqus_thread"
-             data-disqus-identifier="http://sharedinstance.net/2014/04/settings-root-toggles/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I just wanted to post a quick trick you can use to show a toggle in the root Settings list view.</p>
-
-<p>If you generate a new preference bundle project with NIC and open <code>entry.plist</code>, you&rsquo;ll find this:</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/2014/04/settings-root-toggles/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+<span class="byline author vcard">Posted by <span class="fn">kirb</span></span>
+ &mdash;
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/2014/02/debugging-memory-issues/">Debugging memory issues in Substrate tweaks</a></h1>
-    
-    
-      <p class="meta">
-        
 
 
 
@@ -263,216 +208,32 @@
   
 
 
-<time datetime="2014-02-10T00:00:00+10:30" pubdate data-updated="true">Feb 10<span>th</span>, 2014</time>
-        
-           &mdash; <a href="/2014/02/debugging-memory-issues/#disqus_thread"
-             data-disqus-identifier="http://sharedinstance.net/2014/02/debugging-memory-issues/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Memory issues in MobileSubstrate tweaks are generally not very easy to debug. In the following text I&rsquo;m explaining some useful tools for finding overreleases and leaks in your own tweaks.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/2014/02/debugging-memory-issues/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+<time datetime="2014-11-26T18:02:34+10:30" pubdate data-updated="true">Nov 26<span>th</span>, 2014</time> &mdash;
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/2013/12/how-to-support-arm64/">Important: Update your tweaks to support arm64</a></h1>
-    
-    
-      <p class="meta">
-        
 
-
-
-
-
-
-
-
+<span class="categories">
   
-
-
-<time datetime="2013-12-24T00:00:00+10:30" pubdate data-updated="true">Dec 24<span>th</span>, 2013</time>
-        
-           &mdash; <a href="/2013/12/how-to-support-arm64/#disqus_thread"
-             data-disqus-identifier="http://sharedinstance.net/2013/12/how-to-support-arm64/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>The iPhone 5s, iPad Air and iPad mini (2nd generation) both run on a completely new processor architecture: arm64. If you haven&rsquo;t heard, this architecture is 64-bit, unlike the previous 32-bit architectures (armv6, armv7 and armv7s). Of course, these devices are still backwards compatible with the 32-bit architectures, but for 64-bit processes, <strong>dynamic libraries not compiled for arm64 will not be loaded into them.</strong></p>
-
-</div>
+    <a class='category' href='/categories/sbblog/'>SBBlog</a>
   
-  
-    <footer>
-      <a rel="full-article" href="/2013/12/how-to-support-arm64/">Read on &rarr;</a>
-    </footer>
-  
+</span>
 
 
-    </article>
-  
-  
-    <article>
+    </p>
+    <p class="meta">
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/2013/12/build-on-windows/">How to build jailbreak packages for iOS on Windows</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-24T00:00:00+10:30" pubdate data-updated="true">Dec 24<span>th</span>, 2013</time>
-        
-           &mdash; <a href="/2013/12/build-on-windows/#disqus_thread"
-             data-disqus-identifier="http://sharedinstance.net/2013/12/build-on-windows/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Want to develop jailbreak packages, but don&rsquo;t have a Mac? You could easily download a toolchain on your iPhone and build packages on there, but if you have a Windows computer, you could instead use the extra speed that a desktop CPU provides, thanks to <a href="http://coolstar.org">coolstar</a>&rsquo;s fork of theos and toolchain for Windows. At least Windows XP is required for this.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/2013/12/build-on-windows/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
+        <a class="basic-alignment left" href="/2014/04/settings-root-toggles/" title="Previous Post: Adding simple toggles in the Settings root list">&laquo; Adding simple toggles in the Settings root list</a>
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/2013/10/running-tweaks-in-simulator/">Running Substrate tweaks in the iOS Simulator</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-21T00:00:00+10:30" pubdate data-updated="true">Oct 21<span>st</span>, 2013</time>
-        
-           &mdash; <a href="/2013/10/running-tweaks-in-simulator/#disqus_thread"
-             data-disqus-identifier="http://sharedinstance.net/2013/10/running-tweaks-in-simulator/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>With the iPhone 4 being the last iOS 7 device standing that can be jailbroken tethered, it&rsquo;s gotten much harder to test and update tweaks for the new firmware ahead of the untethered jailbreak release.</p>
-
-<p>But there&rsquo;s still a way to do this if you&rsquo;re on a Mac. The iOS Simulator is basically already jailbroken, in the sense that you can access its filesystem and not all security policies are enforced. Therefore you can test your SpringBoard tweaks on iOS 7 with the simulator.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/2013/10/running-tweaks-in-simulator/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
       
-  <header>
-    
-      <h1 class="entry-title"><a href="/2013/10/welcome-to-sharedinstance/">Welcome to sharedInstance!</a></h1>
-    
-    
-      <p class="meta">
-        
+    </p>
+  </footer>
+</article>
 
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-10T00:00:00+10:30" pubdate data-updated="true">Oct 10<span>th</span>, 2013</time>
-        
-           &mdash; <a href="/2013/10/welcome-to-sharedinstance/#disqus_thread"
-             data-disqus-identifier="http://sharedinstance.net/2013/10/welcome-to-sharedinstance/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Welcome to sharedInstance!</p>
-
-<p>Here you can access the latest blog posts from the perspective of various Jailbreak Tweak Developers, iOS Hackers and many more.</p>
-
-<p>You can expect tweak reviews, some tutorials and also tips that’ll help you make better jailbreak tweaks.</p>
-
+  <section class="comments">
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/2013/10/welcome-to-sharedinstance/">Read on &rarr;</a>
-    </footer>
-  
+  </section>
 
-
-    </article>
-  
-  <div class="pagination">
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
 </div>
 
     </div>
@@ -489,7 +250,10 @@
       var disqus_shortname = 'sharedinstance';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sharedinstance.net/2014/11/settings-the-right-way/';
+        var disqus_url = 'http://sharedinstance.net/2014/11/settings-the-right-way/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

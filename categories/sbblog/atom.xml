@@ -4,7 +4,7 @@
   <title><![CDATA[Category: SBBlog | sharedInstance]]></title>
   <link href="http://sharedinstance.net/categories/sbblog/atom.xml" rel="self"/>
   <link href="http://sharedinstance.net/"/>
-  <updated>2014-04-18T11:21:29+09:30</updated>
+  <updated>2014-11-26T18:05:43+10:30</updated>
   <id>http://sharedinstance.net/</id>
   <author>
     <name><![CDATA[sharedInstance]]></name>
@@ -12,6 +12,81 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Doing tweak settings the right way]]></title>
+    <link href="http://sharedinstance.net/2014/11/settings-the-right-way/"/>
+    <updated>2014-11-26T18:02:34+10:30</updated>
+    <id>http://sharedinstance.net/2014/11/settings-the-right-way</id>
+    <content type="html"><![CDATA[<p>You might have noticed that tweak settings have suddenly started acting strange in iOS 8. This is because the <code>cfprefsd</code> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately &ndash; rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
+
+<p>It&rsquo;s actually really simple and I&rsquo;d argue a thousand times better than the hack all of us were using before this. First, you need to keep an instance of NSUserDefaults hanging around, and register your default preferences:</p>
+
+<p>```objc
+static NSString <em>const kHBCBPreferencesDomain = @&ldquo;ws.hbang.cobalia&rdquo;;
+static NSString </em>const kHBCBPreferencesEnabledKey = @&ldquo;Enabled&rdquo;;
+static NSString <em>const kHBCBPreferencesSwitchesKey = @&ldquo;Switches&rdquo;;
+static NSString </em>const kHBCBPreferencesSectionLabelKey = @&ldquo;SectionLabel&rdquo;;
+static NSString *const kHBCBPreferencesSwitchLabelsKey = @&ldquo;SwitchLabels&rdquo;;</p>
+
+<p>NSUserDefaults *userDefaults;</p>
+
+<p>%init {</p>
+
+<pre><code>userDefaults = [[NSUserDefaults alloc] _initWithSuiteName:kHBCBPreferencesDomain container:[NSURL URLWithString:@"/var/mobile"]];
+
+[userDefaults registerDefaults:@{
+    kHBCBPreferencesEnabledKey: @YES,
+    kHBCBPreferencesSwitchesKey: @[ /* ... */ ]
+    kHBCBPreferencesSectionLabelKey: @YES,
+    kHBCBPreferencesSwitchLabelsKey: @YES
+}]
+</code></pre>
+
+<p>}
+```</p>
+
+<p>You&rsquo;ll probably need to define this private init method in a category interface like so:</p>
+
+<p>```objc
+@interface NSUserDefaults (Private)</p>
+
+<ul>
+<li>(instancetype)_initWithSuiteName:(NSString <em>)suiteName container:(NSURL </em>)container;</li>
+</ul>
+
+
+<p>@end
+```</p>
+
+<p>I use constants for strings that shouldn&rsquo;t ever change &ndash; you don&rsquo;t need to but I&rsquo;d recommend it.</p>
+
+<p>Now, it&rsquo;s as simple as a <code>[userDefaults boolForKey:@"Enabled"]</code> to grab a boolean, or <code>objectForKey:</code> for an Objective-C object, or any of the other methods <a href="https://developer.apple.com/Library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSUserDefaults_Class/index.html">the class supports</a>.</p>
+
+<p>Easy! If you notice, you don&rsquo;t even need to watch for a traditional Darwin notification, nor do you need to define <code>PostNotification</code> on your preferences specifiers. But what about libraries like AppList or Flipswitch that still write directly to the plist? The easiest thing you can do is a quick little trick to pass that back to <code>cfprefsd</code> to keep in memory. This is how I do it in <a href="https://github.com/hbang/Cobalia/blob/master/Tweak.xm">Cobalia</a>:</p>
+
+<p>```objc
+void HBCBPreferencesChanged() {</p>
+
+<pre><code>NSDictionary *preferences = [NSDictionary dictionaryWithContentsOfFile:[[[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES)[0] stringByAppendingPathComponent:@"Preferences"] stringByAppendingPathComponent:kHBCBPreferencesDomain] stringByAppendingPathExtension:@"plist"]];
+
+if (preferences[kHBCBPreferencesSwitchesKey]) {
+    [userDefaults setObject:preferences[kHBCBPreferencesSwitchesKey] forKey:kHBCBPreferencesSwitchesKey];
+}
+</code></pre>
+
+<p>}</p>
+
+<p>%ctor {</p>
+
+<pre><code>HBCBPreferencesChanged();
+CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)HBCBPreferencesChanged, CFSTR("ws.hbang.cobalia/ReloadPrefs"), NULL, kNilOptions);
+</code></pre>
+
+<p>}
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Adding simple toggles in the Settings root list]]></title>
@@ -267,111 +342,6 @@ Dec 19 00:33:20 kirbpad SpringBoard[52026] &lt;Warning&gt;: It works!
 </code></p>
 
 <p>Have fun &ndash; and don&rsquo;t forget to thank <a href="http://coolstar.org">coolstar</a> for being awesome.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Running Substrate tweaks in the iOS Simulator]]></title>
-    <link href="http://sharedinstance.net/2013/10/running-tweaks-in-simulator/"/>
-    <updated>2013-10-21T00:00:00+10:30</updated>
-    <id>http://sharedinstance.net/2013/10/running-tweaks-in-simulator</id>
-    <content type="html"><![CDATA[<p>With the iPhone 4 being the last iOS 7 device standing that can be jailbroken tethered, it&rsquo;s gotten much harder to test and update tweaks for the new firmware ahead of the untethered jailbreak release.</p>
-
-<p>But there&rsquo;s still a way to do this if you&rsquo;re on a Mac. The iOS Simulator is basically already jailbroken, in the sense that you can access its filesystem and not all security policies are enforced. Therefore you can test your SpringBoard tweaks on iOS 7 with the simulator.</p>
-
-<!--more-->
-
-
-<p>Do keep in mind that this will only work with tweaks that only need to load into SpringBoard or other daemons. If you want to test a tweak inside apps, unfortunately you&rsquo;ll need to wait for a proper Substrate for OS X release that can do this.</p>
-
-<h3>Installing</h3>
-
-<p>First, you need to install Substrate. The binaries in the Substrate package in Cydia (except for MobileSafety) are compiled for both armv6 and i386/x86_64, so you can simply download, extract, and copy the files out of the package like so:</p>
-
-<p><code>bash
-wget http://apt.saurik.com/debs/mobilesubstrate_0.9.4001_iphoneos-arm.deb
-mkdir substrate
-dpkg-deb -x mobilesubstrate_0.9.4001_iphoneos-arm.deb substrate
-sudo mv substrate/Library/Frameworks/CydiaSubstrate.framework /Library/Frameworks/CydiaSubstrate.framework
-sudo mv substrate/Library/MobileSubstrate /Library/MobileSubstrate
-sudo mv substrate/usr/lib/* /usr/lib
-</code></p>
-
-<h3>Injecting</h3>
-
-<p>Awesome, now we need to get it to inject into the iOS Simulator. As of iOS 7, SpringBoard is launched by <code>launchd_sim</code> instead of directly by the simulator binary, so the hack that many people used in the past no longer works. However, you can still use Substrate by manually modifying LaunchDaemon plists found in the SDK.</p>
-
-<p>Head over to the <code>LaunchDaemons</code> directory of the simulator&rsquo;s sysroot on your Mac:</p>
-
-<p><code>
-/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.0.sdk/System/Library/LaunchDaemons
-</code></p>
-
-<p>Make a backup of <code>com.apple.SpringBoard.plist</code> somewhere other than the LaunchDaemons directory (otherwise SpringBoard will be loaded twice).</p>
-
-<p>Now open the original plist in your favorite text or plist editor (Xcode has one built in). It&rsquo;s a binary plist, so if your text editor isn&rsquo;t cool enough to convert it to XML automatically, you can do so with <code>plutil -convert xml1 com.apple.SpringBoard.plist</code>. Add an <code>EnvironmentVariables</code> key, and set its value to a dictionary containing <code>DYLD_INSERT_LIBRARIES</code>, and set the value of that to the location of your dylib (<em>not MobileSubstrate.dylib</em>).</p>
-
-<p>You should end up with something like this:</p>
-
-<p><img src="http://cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/10/Screen-Shot-2013-10-20-at-9.58.32-PM-1.png" alt="Modified com.apple.SpringBoard.plist" /></p>
-
-<p>If you have the simulator running, close and re-launch it for the changes to apply.</p>
-
-<h3>Environment</h3>
-
-<p>Next, you must export <code>$IPHONE_SIMULATOR_ROOT</code>. Open <code>~/.bash_profile</code> (or the equivalent for your shell) and add:</p>
-
-<p><code>bash
-export IPHONE_SIMULATOR_ROOT=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.0.sdk
-</code></p>
-
-<p>Load the changes into your shell by executing <code>. ~/.bash_profile</code>, or just close and launch a new shell.</p>
-
-<p>Finally, you need to make a minor modification to theos, since the iOS 7 SDK&rsquo;s ld doesn&rsquo;t like one of the flags that theos passes to it. Open <code>$THEOS/makefiles/targets/Darwin/simulator.mk</code> in your editor, and find the following line:</p>
-
-<p><code>make
-_TARGET_OSX_VERSION_FLAG = -mmacosx-version-min=$(if $(_TARGET_VERSION_GE_4_0),10.6,10.5)
-</code></p>
-
-<p>Replace it with this:</p>
-
-<p><code>make
-_TARGET_VERSION_GE_7_0 = $(call __simplify,_TARGET_VERSION_GE_7_0,$(shell $(THEOS_BIN_PATH)/vercmp.pl $(_THEOS_TARGET_SDK_VERSION) ge 7.0))
-_TARGET_OSX_VERSION_FLAG = $(if $(_TARGET_VERSION_GE_7_0),-miphoneos-version-min=7.0,-mmacosx-version-min=$(if $(_TARGET_VERSION_GE_4_0),10.6,10.5))
-</code></p>
-
-<h3>Linking</h3>
-
-<p>Your copy of <code>libsubstrate.dylib</code> won&rsquo;t be able to be linked against, since it doesn&rsquo;t have a slice for the iOS Simulator platform. You can download a version that does like so:</p>
-
-<p><code>bash
-mv $THEOS/lib/libsubstrate.dylib $THEOS/lib/libsubstrate.dylib_
-wget http://cdn.hbang.ws/dl/libsubstrate_ios7sim.dylib -O $THEOS/lib/libsubstrate.dylib
-</code></p>
-
-<p>Note that this only contains an x86_64 slice for OS X, since it isn&rsquo;t possible to have multiple i386 slices. However, you won&rsquo;t need to worry about this unless you have OS X projects that depend on OS X 10.5 or older.</p>
-
-<h3>Compiling</h3>
-
-<p>Simply compiling tweaks like normal is not enough for them to work in the simulator: in this case, they&rsquo;ll be compiled for the ARM architecture, and your Mac runs on Intel. It&rsquo;s fairly simple to do this with theos, however, by setting the <code>TARGET</code> variable.</p>
-
-<p>If you don&rsquo;t already have <code>TARGET</code> set in your makefile, at the top of your makefile, add this line:</p>
-
-<p><code>make
-TARGET = simulator
-</code></p>
-
-<p>If you do, set the target parameter to <code>simulator</code>. For example:</p>
-
-<p><code>make
-TARGET = simulator:clang:7.0
-</code></p>
-
-<p><small>(Check out <a href="https://github.com/theiostream/theos-ref/blob/master/2_1_1_5_0_TARGET.md">theiostream&rsquo;s documentation on TARGET</a> if you haven&rsquo;t tried it before.)</small></p>
-
-<h3>That&rsquo;s it!</h3>
-
-<p>You can now run make, ignoring the warning that ld whines about. SpringBoard will not be restarted for you, like usual – you must execute <code>killall SpringBoard</code> yourself.</p>
 ]]></content>
   </entry>
   
