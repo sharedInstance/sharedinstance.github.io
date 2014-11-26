@@ -9,7 +9,7 @@ single: true
   <footer>
     <p class="meta">
       {% include post/author.html %} &mdash;
-      {% include post/date.html %}{% if updated %}{{ updated }}{% else %}{{ time }}{% endif %} &mdash;
+      {% include post/date.html %}{{ time }}{% if updated %} {{ updated }}{% endif %} &mdash;
       {% include post/categories.html %}
     </p>
     <p class="meta">
