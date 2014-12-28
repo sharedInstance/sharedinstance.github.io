@@ -4,7 +4,7 @@
   <title><![CDATA[Category: sbblog | sharedInstance]]></title>
   <link href="http://sharedinstance.net/categories/sbblog/atom.xml" rel="self"/>
   <link href="http://sharedinstance.net/"/>
-  <updated>2014-12-28T15:28:55+10:30</updated>
+  <updated>2014-12-28T16:05:03+10:30</updated>
   <id>http://sharedinstance.net/</id>
   <author>
     <name><![CDATA[sharedInstance]]></name>
@@ -12,6 +12,87 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Setting up SSH via USB connection]]></title>
+    <link href="http://sharedinstance.net/2014/12/setting-up-ssh-via-usb-connection/"/>
+    <updated>2014-12-28T15:03:02+10:30</updated>
+    <id>http://sharedinstance.net/2014/12/setting-up-ssh-via-usb-connection</id>
+    <content type="html"><![CDATA[<p>When developing tweaks (or making themes, for that matter), it is often annoying to wait for files to copy (and commands to execute) over Wi-Fi - it tends to be very slow and sometimes unreliable, and one must keep track of IP addresses and such (even if they use a hosts file to map custom hostnames) in order to accomplish it. This annoyance can be greatly relieved by creating a local tunnel over a USB connection to the target device, and using that to SSH to the device much more quickly and reliably. In this tutorial, we will cover how to set up your Mac (not PC, sorry - I am not knowledgable enough to write on this) so that port 2222 is forwarded to port 22 on whatever device is plugged in. This service will be started automatically and will run in the background at all times, out of sight and out of mind.</p>
+
+<!--more-->
+
+
+<p>First things first, download the client from its <a href="https://code.google.com/p/iphonetunnel-usbmuxconnectbyport/downloads/detail?name=itnl_rev8.zip">download page</a> (note that you will need iTunes 10.5 or later for the client to work). Extract this zip, and move the extracted contents to <code>~/Library/Application Support/usbmuxd/</code> (or something else, if you wish, but make sure to change the path in the plist accordingly) - both <code>tunl</code> and <code>libmd.dylib</code>.</p>
+
+<p>Now, create a new file named <code>net.sharedinstance.tcprelay.plist</code> in <code>~/Library/LaunchAgents</code>. Inside this file, put the following:</p>
+
+<pre><code class="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;
+&lt;dict&gt;
+    &lt;key&gt;Label&lt;/key&gt;
+    &lt;string&gt;net.sharedinstance.tcprelay&lt;/string&gt;
+    &lt;key&gt;KeepAlive&lt;/key&gt;
+    &lt;dict&gt;
+        &lt;key&gt;NetworkState&lt;/key&gt;
+        &lt;true/&gt;
+    &lt;/dict&gt;
+    &lt;key&gt;ProgramArguments&lt;/key&gt;
+    &lt;array&gt;
+        &lt;string&gt;/Users/USER/Library/Application Support/usbmuxd/itnl&lt;/string&gt;
+        &lt;string&gt;--iport&lt;/string&gt;
+        &lt;string&gt;22&lt;/string&gt;
+        &lt;/string&gt;--lport&lt;/string&gt;
+        &lt;string&gt;2222&lt;/string&gt;
+    &lt;/array&gt;
+    &lt;key&gt;RunAtLoad&lt;/key&gt;
+    &lt;true/&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;
+</code></pre>
+
+<p>Be sure to replace USER above with your username (and if you put the executable elsewhere, make sure to change the first item in the ProgramArguments array to reflect that). Make sure that the itnl executable is, well, executable. Then, give the plist appropriate permissions - <code>chmod 0644 ~/Library/LaunchAgents/net.sharedinstance.tcprelay.plist</code>, and load this launch agent we have created - <code>launchctl load ~/Library/LaunchAgents/net.sharedinstance.tcprelay.plist</code>.</p>
+
+<p>From now on, the relay we have set up will always be running the background once you log in. Try it out now with <code>ssh -p 2222 mobile@localhost</code>.</p>
+
+<p>If you use this with multiple devices, you&rsquo;ll notice a problem: you&rsquo;ll get a scary host key changed warning:</p>
+
+<pre><code>@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+</code></pre>
+
+<p>The trick to avoiding this is to set the known hosts file to <code>/dev/null</code> when you&rsquo;re connecting to localhost:2222. Create <code>~/.ssh/config</code> if you don&rsquo;t already have it and add the following:</p>
+
+<pre><code>Host local
+    User root
+    HostName localhost
+    Port 2222
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+</code></pre>
+
+<p>You can now use <code>ssh local</code> no matter what device is plugged in.</p>
+
+<p>To use this with Theos, you can export the IP to the host alias and the port to 2222:</p>
+
+<pre><code class="bash">export THEOS_DEVICE_IP=local THEOS_DEVICE_PORT=2222
+</code></pre>
+
+<p>It would be ideal to also put this in your shell&rsquo;s profile script (<code>~/.bash_profile</code>, <code>~/.zshrc</code>, etc) so it&rsquo;s set by default and you don&rsquo;t have to worry about it.</p>
+
+<p>Plug in a jailbroken iOS device, copy your SSH key to it if you haven&rsquo;t already&hellip;</p>
+
+<pre><code class="bash">ssh local 'mkdir -p ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys' &lt; ~/.ssh/id_rsa.pub
+</code></pre>
+
+<p>&hellip;and enjoy the blazingly fast transfer speed! Isn&rsquo;t this much better than boring ol&#8217; Wi-Fi?</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Doing tweak settings the right way]]></title>
@@ -215,104 +296,6 @@ NSUserDefaults *userDefaults;
 <h2>The slightly more complex way</h2>
 
 <p>It may not be viable to compile only against the iOS 7 SDK, since that might mean dropping support for iOS versions before 4.3.  If you have a preference bundle, wee app, or anything else that is loaded into an arm64 process, don&rsquo;t forget that you&rsquo;ll need to perform the same thing to its binaries too. There are tons of goodies available on <a href="http://iphonedevwiki.net/index.php/Updating_extensions_for_iOS_7#Tweaks_that_do_need_iOS_4.2.1_and_below_compatibility">the dev wiki</a> for this situation - and also has tips for issues that you may come across.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How to build jailbreak packages for iOS on Windows]]></title>
-    <link href="http://sharedinstance.net/2013/12/build-on-windows/"/>
-    <updated>2013-12-24T00:00:00+10:30</updated>
-    <id>http://sharedinstance.net/2013/12/build-on-windows</id>
-    <content type="html"><![CDATA[<p>Want to develop jailbreak packages, but don&rsquo;t have a Mac? You could easily download a toolchain on your iPhone and build packages on there, but if you have a Windows computer, you could instead use the extra speed that a desktop CPU provides, thanks to <a href="http://coolstar.org">coolstar</a>&rsquo;s fork of theos and toolchain for Windows. At least Windows XP is required for this.</p>
-
-<!--more-->
-
-
-<h2>Cygwin</h2>
-
-<p><a href="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm.png"><img src="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-13-at-4.10.16-pm-1024x766.png" alt="Cygwin website" /></a></p>
-
-<p>The toolchain requires Cygwin, an awesome piece of software that provides a Unix environment on Windows. Grab the appropriate setup program for your system architecture from <a href="https://sourceware.org/cygwin/install.html">cygwin.com/install.html</a> and run it. You&rsquo;ll be greeted by the standard setup welcome page, followed by a request for where to download packages from. You&rsquo;ll want to stick with the default &ldquo;Install from Internet&rdquo;. Next your way through until you get a list of sources - you can pick any of them; preferably one closer to you. After downloading a list of packages, the setup maximizes to show you a full list of available packages:</p>
-
-<p><a href="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png"><img src="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.12.51-am.png" alt="Package list" /></a></p>
-
-<p>Here&rsquo;s what you&rsquo;ll need to search for and install:</p>
-
-<ul>
-<li>git (under Devel)</li>
-<li>ca-certificates (under Net)</li>
-<li>make (under Devel)</li>
-<li>perl (under Perl)</li>
-<li>python (under Python)</li>
-<li>openssh (under Net)</li>
-</ul>
-
-
-<p>Hit next two more times and let these packages, and the core Cygwin packages, install.</p>
-
-<h2>Toolchain</h2>
-
-<p>If you allowed it, the setup program dropped a shortcut to Cygwin Terminal on your desktop and/or Start menu. (If not, you can manually launch C:\cygwin\bin\mintty.exe.) Launch either one and you&rsquo;ll be greeted with a command line (bash):</p>
-
-<p><a href="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png"><img src="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-19-at-1.27.03-am.png" alt="Cygwin terminal" /></a></p>
-
-<p><small>(I&rsquo;ve customised mine - yours will have a different font and size.)</small></p>
-
-<p>From here, we&rsquo;ll create the directory where theos will live in, and clone it from coolstar&rsquo;s fork:</p>
-
-<pre><code class="bash">mkdir -p /opt
-cd /opt
-git clone -b windows git://github.com/coolstar/theos.git
-</code></pre>
-
-<p>Next up is the toolchain itself, which will take a while&hellip;</p>
-
-<pre><code class="bash">git clone -b x86_64 git://github.com/coolstar/iOSToolchain4Win.git theos/toolchain/windows/iphone
-</code></pre>
-
-<p>If your copy of Windows is not 64-bit, replace <code>x86_64</code> with <code>master</code>.</p>
-
-<h2>SDK</h2>
-
-<p>Once that&rsquo;s done, you&rsquo;ll need to download an SDK. Legally, you can only do this by downloading an Xcode DMG image from Apple, so head to their <a href="https://developer.apple.com/downloads/index.action">developer downloads page</a> (login required) and download an Xcode version of your choice - try Xcode 5 for the iOS 7 SDK and 4.6.3 for iOS 6.1. Meanwhile, you&rsquo;ll need to download and install <a href="http://www.acutesystems.com">TransMac</a> so that you can extract files from the DMG.</p>
-
-<p>Once the download is done, open the file. From there, click the DMG name in the sidebar, then navigate your way through to <code>Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs</code>. Right click <code>iPhoneOS6.1.sdk</code> and choose &ldquo;Copy To&rdquo;.</p>
-
-<p><a href="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-24-at-6.53.11-pm.png"><img src="//cdn.hbang.ws/sharedinstance/wp-content/uploads/2013/12/Screen-Shot-2013-12-24-at-6.53.11-pm.png" alt="Extracting SDK" /></a></p>
-
-<p><small>(I&rsquo;m using Xcode 4.4.1, but the instructions will always be the same.)</small></p>
-
-<p>Here, you&rsquo;ll want to enter the path to Cygwin (unless you changed it, that&rsquo;s <code>C:\cygwin</code> on 32-bit Windows, or <code>C:\cygwin64</code> on 64-bit Windows), followed by the path to theos&#8217; SDK directory, and the directory name: <code>opt\theos\sdks\iPhoneOS6.1.sdk</code>. Hit OK and wait for the magic to happen.</p>
-
-<h2>Try it out!</h2>
-
-<p>Everything should work as you expect it to now. Let&rsquo;s try building a test tweak. Before you do, though, you should add theos environment variables to your <code>.bash_profile</code> (or equivalent for your shell). Open <code>C:\cygwin\home\...username...\.bash_profile</code> in your favorite editor and add this on the very last line, replacing the device name with your own device&rsquo;s, replacing spaces with dashes, or its IP address:</p>
-
-<pre><code class="bash">export THEOS=/opt/theos
-export THEOS_DEVICE_IP=kirbpad.local THEOS_DEVICE_PORT=22
-</code></pre>
-
-<p>Load this into the shell with <code>. ~/.bash_profile</code>, or close the terminal window and launch a new one. <code>cd</code> to where you would like to store your theos projects (note that your C: drive lives at <code>/cygdrive/c</code> under Cygwin), or just create a new directory for that under your cygwin home directory:</p>
-
-<pre><code class="bash">cd
-mkdir projects
-cd projects
-</code></pre>
-
-<p>Now run <code>$THEOS/bin/nic.pl</code> to summon the NIC. Select a tweak and provide the rest of the info. Now open Tweak.xm and paste in:</p>
-
-<pre><code class="objc">%ctor {
-    NSLog(@"It works!");
-}
-</code></pre>
-
-<p>Get ready to <a href="http://gist.io/5128340">watch your syslog</a>, and run <code>make package install</code> inside the project directory. If all goes well, you&rsquo;ll see this somewhere among the other messages in the syslog:</p>
-
-<pre><code class="plain">Dec 19 00:33:20 kirbpad SpringBoard[52026] &lt;Notice&gt;: MS:Notice: Loading: /Library/MobileSubstrate/DynamicLibraries/TestTweak.dylib
-Dec 19 00:33:20 kirbpad SpringBoard[52026] &lt;Warning&gt;: It works!
-</code></pre>
-
-<p>Have fun - and don&rsquo;t forget to thank <a href="http://coolstar.org">coolstar</a> for being awesome.</p>
 ]]></content>
   </entry>
   
