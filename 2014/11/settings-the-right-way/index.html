@@ -114,23 +114,23 @@
 <span class='line-number'>16</span>
 <span class='line-number'>17</span>
 <span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesDomain</span> <span class="o">=</span> <span class="s">@&quot;ws.hbang.cobalia&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesEnabledKey</span> <span class="o">=</span> <span class="s">@&quot;Enabled&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSwitchesKey</span> <span class="o">=</span> <span class="s">@&quot;Switches&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSectionLabelKey</span> <span class="o">=</span> <span class="s">@&quot;SectionLabel&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSwitchLabelsKey</span> <span class="o">=</span> <span class="s">@&quot;SwitchLabels&quot;</span><span class="p">;</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">static</span> <span class="bp">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesDomain</span> <span class="o">=</span> <span class="s">@&quot;ws.hbang.cobalia&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">static</span> <span class="bp">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesEnabledKey</span> <span class="o">=</span> <span class="s">@&quot;Enabled&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">static</span> <span class="bp">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSwitchesKey</span> <span class="o">=</span> <span class="s">@&quot;Switches&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">static</span> <span class="bp">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSectionLabelKey</span> <span class="o">=</span> <span class="s">@&quot;SectionLabel&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">static</span> <span class="bp">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSwitchLabelsKey</span> <span class="o">=</span> <span class="s">@&quot;SwitchLabels&quot;</span><span class="p">;</span>
 </span><span class='line'>
-</span><span class='line'><span class="n">NSUserDefaults</span> <span class="o">*</span><span class="n">userDefaults</span><span class="p">;</span>
+</span><span class='line'><span class="bp">NSUserDefaults</span> <span class="o">*</span><span class="n">userDefaults</span><span class="p">;</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">%</span><span class="n">init</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">userDefaults</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSUserDefaults</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">_initWithSuiteName:</span><span class="n">kHBCBPreferencesDomain</span> <span class="nl">container:</span><span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="s">@&quot;/var/mobile&quot;</span><span class="p">]];</span>
+</span><span class='line'>  <span class="n">userDefaults</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">NSUserDefaults</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">_initWithSuiteName</span><span class="p">:</span><span class="n">kHBCBPreferencesDomain</span> <span class="nl">container</span><span class="p">:[</span><span class="bp">NSURL</span> <span class="nl">URLWithString</span><span class="p">:</span><span class="s">@&quot;/var/mobile&quot;</span><span class="p">]];</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="p">[</span><span class="n">userDefaults</span> <span class="nl">registerDefaults:</span><span class="err">@</span><span class="p">{</span>
-</span><span class='line'>      <span class="nl">kHBCBPreferencesEnabledKey:</span> <span class="err">@</span><span class="n">YES</span><span class="p">,</span>
-</span><span class='line'>      <span class="nl">kHBCBPreferencesSwitchesKey:</span> <span class="err">@</span><span class="p">[</span> <span class="cm">/* ... */</span> <span class="p">]</span>
-</span><span class='line'>      <span class="nl">kHBCBPreferencesSectionLabelKey:</span> <span class="err">@</span><span class="n">YES</span><span class="p">,</span>
-</span><span class='line'>      <span class="nl">kHBCBPreferencesSwitchLabelsKey:</span> <span class="err">@</span><span class="n">YES</span>
-</span><span class='line'>  <span class="p">}]</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">userDefaults</span> <span class="nl">registerDefaults</span><span class="p">:</span><span class="l">@{</span>
+</span><span class='line'>      <span class="nl">kHBCBPreferencesEnabledKey</span><span class="p">:</span> <span class="m">@YES</span><span class="p">,</span>
+</span><span class='line'>      <span class="nl">kHBCBPreferencesSwitchesKey</span><span class="p">:</span> <span class="l">@[</span> <span class="cm">/* ... */</span> <span class="l">]</span>
+</span><span class='line'>      <span class="nl">kHBCBPreferencesSectionLabelKey</span><span class="p">:</span> <span class="m">@YES</span><span class="p">,</span>
+</span><span class='line'>      <span class="nl">kHBCBPreferencesSwitchLabelsKey</span><span class="p">:</span> <span class="m">@YES</span>
+</span><span class='line'>  <span class="l">}</span><span class="p">]</span>
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -142,9 +142,9 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@interface</span> <span class="nc">NSUserDefaults</span> <span class="nl">(Private)</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@interface</span> <span class="bp">NSUserDefaults</span> <span class="nl">(Private)</span>
 </span><span class='line'>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">_initWithSuiteName:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">suiteName</span> <span class="nf">container:</span><span class="p">(</span><span class="n">NSURL</span> <span class="o">*</span><span class="p">)</span><span class="nv">container</span><span class="p">;</span>
+</span><span class='line'><span class="p">-</span> <span class="p">(</span><span class="kt">instancetype</span><span class="p">)</span><span class="nf">_initWithSuiteName:</span><span class="p">(</span><span class="bp">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">suiteName</span> <span class="nf">container:</span><span class="p">(</span><span class="bp">NSURL</span> <span class="o">*</span><span class="p">)</span><span class="nv">container</span><span class="p">;</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">@end</span>
 </span></code></pre></td></tr></table></div></figure>
@@ -171,10 +171,10 @@
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
 </pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="kt">void</span> <span class="nf">HBCBPreferencesChanged</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">NSDictionary</span> <span class="o">*</span><span class="n">preferences</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSDictionary</span> <span class="nl">dictionaryWithContentsOfFile:</span><span class="p">[[[</span><span class="n">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="n">NSLibraryDirectory</span><span class="p">,</span> <span class="n">NSUserDomainMask</span><span class="p">,</span> <span class="n">YES</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="nl">stringByAppendingPathComponent:</span><span class="s">@&quot;Preferences&quot;</span><span class="p">]</span> <span class="nl">stringByAppendingPathComponent:</span><span class="n">kHBCBPreferencesDomain</span><span class="p">]</span> <span class="nl">stringByAppendingPathExtension:</span><span class="s">@&quot;plist&quot;</span><span class="p">]];</span>
+</span><span class='line'>  <span class="bp">NSDictionary</span> <span class="o">*</span><span class="n">preferences</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSDictionary</span> <span class="nl">dictionaryWithContentsOfFile</span><span class="p">:[[[</span><span class="n">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="n">NSLibraryDirectory</span><span class="p">,</span> <span class="n">NSUserDomainMask</span><span class="p">,</span> <span class="nb">YES</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="nl">stringByAppendingPathComponent</span><span class="p">:</span><span class="s">@&quot;Preferences&quot;</span><span class="p">]</span> <span class="nl">stringByAppendingPathComponent</span><span class="p">:</span><span class="n">kHBCBPreferencesDomain</span><span class="p">]</span> <span class="nl">stringByAppendingPathExtension</span><span class="p">:</span><span class="s">@&quot;plist&quot;</span><span class="p">]];</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">preferences</span><span class="p">[</span><span class="n">kHBCBPreferencesSwitchesKey</span><span class="p">])</span> <span class="p">{</span>
-</span><span class='line'>      <span class="p">[</span><span class="n">userDefaults</span> <span class="nl">setObject:</span><span class="n">preferences</span><span class="p">[</span><span class="n">kHBCBPreferencesSwitchesKey</span><span class="p">]</span> <span class="nl">forKey:</span><span class="n">kHBCBPreferencesSwitchesKey</span><span class="p">];</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">userDefaults</span> <span class="nl">setObject</span><span class="p">:</span><span class="n">preferences</span><span class="p">[</span><span class="n">kHBCBPreferencesSwitchesKey</span><span class="p">]</span> <span class="nl">forKey</span><span class="p">:</span><span class="n">kHBCBPreferencesSwitchesKey</span><span class="p">];</span>
 </span><span class='line'>  <span class="p">}</span>
 </span><span class='line'><span class="p">}</span>
 </span><span class='line'>
@@ -218,6 +218,8 @@
       
         <a class="basic-alignment left" href="/2014/04/settings-root-toggles/" title="Previous Post: Adding simple toggles in the Settings root list">&laquo; Adding simple toggles in the Settings root list</a>
       
+      
+        <a class="basic-alignment right" href="/2014/12/setting-up-ssh-via-usb-connection/" title="Next Post: Setting up SSH via USB connection">Setting up SSH via USB connection &raquo;</a>
       
     </p>
   </footer>

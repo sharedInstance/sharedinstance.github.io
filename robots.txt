@@ -1,4 +1,4 @@
-User-agent: *
-Disallow:
+User-Agent: *
+Allow: /
 
 Sitemap: http://sharedinstance.net/sitemap.xml

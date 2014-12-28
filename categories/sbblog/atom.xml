@@ -4,7 +4,7 @@
   <title><![CDATA[Category: sbblog | sharedInstance]]></title>
   <link href="http://sharedinstance.net/categories/sbblog/atom.xml" rel="self"/>
   <link href="http://sharedinstance.net/"/>
-  <updated>2014-11-26T22:09:44+10:30</updated>
+  <updated>2014-12-28T15:28:55+10:30</updated>
   <id>http://sharedinstance.net/</id>
   <author>
     <name><![CDATA[sharedInstance]]></name>
@@ -135,6 +135,8 @@ NSUserDefaults *userDefaults;
         &lt;string&gt;TypeStatus.png&lt;/string&gt;
         &lt;key&gt;label&lt;/key&gt;
         &lt;string&gt;TypeStatus&lt;/string&gt;
+        &lt;key&gt;key&lt;/key&gt;
+        &lt;string&gt;Enabled&lt;/string&gt;
         &lt;key&gt;PostNotification&lt;/key&gt;
         &lt;string&gt;ws.hbang.typestatus/ReloadPrefs&lt;/string&gt;
     &lt;/dict&gt;
