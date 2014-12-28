@@ -56,6 +56,8 @@ Indeed, the cells shown in the root of Settings courtesy of PreferenceLoader are
 		<string>TypeStatus.png</string>
 		<key>label</key>
 		<string>TypeStatus</string>
+		<key>key</key>
+		<string>Enabled</string>
 		<key>PostNotification</key>
 		<string>ws.hbang.typestatus/ReloadPrefs</string>
 	</dict>
