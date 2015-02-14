@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Setting up SSH via USB connection"
+title: "Setting up SSH via USB connection on OS X"
 date: 2014-12-27 22:33:02 -0600
 comments: true
 categories: SBBlog
