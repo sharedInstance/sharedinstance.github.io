@@ -13,7 +13,7 @@ When developing tweaks (or making themes, for that matter), it is often annoying
 
 <!--more-->
 
-First things first, download the client from its [download page](https://code.google.com/p/iphonetunnel-usbmuxconnectbyport/downloads/detail?name=itunnel_mux_rev71.zip) (note that you will need Windows XP and iTunes 10.5 or later for the client to work). Extract this zip (make sure you extract both the executable and the dll).
+First things first, download the client from its [download page](https://code.google.com/p/iphonetunnel-usbmuxconnectbyport/downloads/detail?name=itunnel_mux_rev71.zip) (note that you will need Windows XP and iTunes 10.5 or later for the client to work). Extract this zip - make sure you extract both the executable and the dll.
 
 In Command Prompt, `cd` to the folder you extracted the zip to and run the following:
 
@@ -23,10 +23,10 @@ itunnel_mux --iport 22 --lport 2222
 
 From now on, the relay we have set up will always be running the background once you log in. Try it out in PuTTY by connecting to SSH at localhost, port 2222.
 
-If you use Cygwin, you can easily register this as a Windows service so it's always running. From a Cygwin shell run as an administrator:
+If you use Cygwin, you can easily register this as a Windows service so it's always running. You will need to use the Cygwin setup from [cygwin.com](https://cygwin.com) to install *cygrunsrv*, under the Admin category. Now, from a Cygwin shell run as an administrator:
 
 ```bash
-cygrunsrv -I itunnel -p /cygdrive/c/path/to/itunnel_mux.exe -a '--iport 22 --lport 2222' -u 'NT AUTHORITY\NetworkService' -y AppleMobileDevice
+cygrunsrv -I iTunnel -p /cygdrive/c/path/to/itunnel_mux.exe -a '--iport 22 --lport 2222' -u 'NETWORK SERVICE' -y 'Apple Mobile Device'
 net start itunnel
 ```
 
