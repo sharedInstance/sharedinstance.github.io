@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Doing tweak settings the right-er way"
-date: 2015-02-02 20:00:00 +1030
+date: 2015-02-15 18:50:56 +1030
 comments: true
 categories: SBBlog
 author: kirb
