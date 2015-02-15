@@ -4,7 +4,7 @@
   <title><![CDATA[sharedInstance]]></title>
   <link href="http://sharedinstance.net/atom.xml" rel="self"/>
   <link href="http://sharedinstance.net/"/>
-  <updated>2014-12-28T16:05:03+10:30</updated>
+  <updated>2015-02-15T18:25:54+10:30</updated>
   <id>http://sharedinstance.net/</id>
   <author>
     <name><![CDATA[sharedInstance]]></name>
@@ -14,7 +14,102 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Setting up SSH via USB connection]]></title>
+    <title type="html"><![CDATA[Setting up SSH via USB connection on Linux]]></title>
+    <link href="http://sharedinstance.net/2015/02/setting-up-ssh-via-usb-connection-linux/"/>
+    <updated>2015-02-15T10:06:18+10:30</updated>
+    <id>http://sharedinstance.net/2015/02/setting-up-ssh-via-usb-connection-linux</id>
+    <content type="html"><![CDATA[<p>This is a version of Aehmlo&rsquo;s original post, modified for Linux.</p>
+
+<p>When developing tweaks (or making themes, for that matter), it is often annoying to wait for files to copy (and commands to execute) over Wi-Fi - it tends to be very slow and sometimes unreliable, and one must keep track of IP addresses and such (even if they use a hosts file to map custom hostnames) in order to accomplish it. This annoyance can be greatly relieved by creating a local tunnel over a USB connection to the target device, and using that to SSH to the device much more quickly and reliably. In this tutorial, we will cover how to set up your Linux PC (there are other posts for <a href="http://sharedinstance.net/2015/02/setting-up-ssh-via-usb-connection-win/">Windows</a> and <a href="http://sharedinstance.net/2014/12/setting-up-ssh-via-usb-connection/">OS X</a>) so that port 2222 is forwarded to port 22 on whatever device is plugged in.</p>
+
+<!--more-->
+
+
+<p>First things first, make sure you have a recent version of libimobiledevice installed, as well as its utilities. On Debian and Ubuntu, the package name is <code>libimobiledevice-utils</code>.</p>
+
+<p>In a terminal, run the following command to start the tunneling:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>iproxy <span class="m">2222</span> 22
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it!</p>
+
+<p>Having this run all the time in the background is different depending on what daemon system your distro uses. If your distro uses Upstart, such as Ubuntu, create a file as root at <code>/etc/init/iproxy.conf</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo nano /etc/init/iproxy.conf
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Enter the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>start on runlevel <span class="o">[</span>2345<span class="o">]</span>
+</span><span class='line'>stop on runlevel <span class="o">[</span>!2345<span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>setuid nobody
+</span><span class='line'>setgid nogroup
+</span><span class='line'>
+</span><span class='line'><span class="nb">exec</span> /usr/bin/iproxy <span class="m">2222</span> 22
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Use <code>sudo start iproxy</code> to start it without having to reboot.</p>
+
+<p>Take a look at the <a href="http://sharedinstance.net/2014/12/setting-up-ssh-via-usb-connection/">original OS X post</a> to find out how to use this with Theos, and to prevent a false security error if you plug in a different device.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Setting up SSH via USB connection on Windows]]></title>
+    <link href="http://sharedinstance.net/2015/02/setting-up-ssh-via-usb-connection-win/"/>
+    <updated>2015-02-15T09:58:08+10:30</updated>
+    <id>http://sharedinstance.net/2015/02/setting-up-ssh-via-usb-connection-win</id>
+    <content type="html"><![CDATA[<p>This is a version of Aehmlo&rsquo;s original post, modified for Windows.</p>
+
+<p>When developing tweaks (or making themes, for that matter), it is often annoying to wait for files to copy (and commands to execute) over Wi-Fi - it tends to be very slow and sometimes unreliable, and one must keep track of IP addresses and such (even if they use a hosts file to map custom hostnames) in order to accomplish it. This annoyance can be greatly relieved by creating a local tunnel over a USB connection to the target device, and using that to SSH to the device much more quickly and reliably. In this tutorial, we will cover how to set up your Windows PC (there are other posts for <a href="http://sharedinstance.net/2015/02/setting-up-ssh-via-usb-connection-linux/">Linux</a> and <a href="http://sharedinstance.net/2014/12/setting-up-ssh-via-usb-connection/">OS X</a>) so that port 2222 is forwarded to port 22 on whatever device is plugged in.</p>
+
+<!--more-->
+
+
+<p>First things first, download the client from its <a href="https://code.google.com/p/iphonetunnel-usbmuxconnectbyport/downloads/detail?name=itunnel_mux_rev71.zip">download page</a> (note that you will need Windows XP and iTunes 10.5 or later for the client to work). Extract this zip - make sure you extract both the executable and the dll.</p>
+
+<p>In Command Prompt, <code>cd</code> to the folder you extracted the zip to and run the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>itunnel_mux --iport <span class="m">22</span> --lport 2222
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>From now on, the relay we have set up will always be running the background once you log in. Try it out in PuTTY by connecting to SSH at localhost, port 2222.</p>
+
+<p>If you use Cygwin, you can easily register this as a Windows service so it&rsquo;s always running. You will need to use the Cygwin setup from <a href="https://cygwin.com">cygwin.com</a> to install <em>cygrunsrv</em>, under the Admin category. Now, from a Cygwin shell run as an administrator:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>cygrunsrv -I iTunnel -p /cygdrive/c/path/to/itunnel_mux.exe -a <span class="s1">&#39;--iport 22 --lport 2222&#39;</span> -u <span class="s1">&#39;NETWORK SERVICE&#39;</span> -y <span class="s1">&#39;Apple Mobile Device&#39;</span>
+</span><span class='line'>net start itunnel
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This creates a service with the name <code>itunnel</code>, which will run itunnel_mux.exe with the provided arguments. It&rsquo;ll execute as Windows&#8217; built in <code>NetworkService</code> account, and requires the Apple Mobile Device service to be up and running before iTunnel can start.</p>
+
+<p>When you update Cygwin packages, you should execute <code>net stop itunnel</code> (again, as an administrator) before the update and <code>net start itunnel</code> after. Otherwise, you may be told to restart your computer to replace in-use files.</p>
+
+<p>Take a look at the <a href="http://sharedinstance.net/2014/12/setting-up-ssh-via-usb-connection/">original OS X post</a> to find out how to use this with Theos, and to prevent a false security error if you plug in a different device.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Setting up SSH via USB connection on OS X]]></title>
     <link href="http://sharedinstance.net/2014/12/setting-up-ssh-via-usb-connection/"/>
     <updated>2014-12-28T15:03:02+10:30</updated>
     <id>http://sharedinstance.net/2014/12/setting-up-ssh-via-usb-connection</id>

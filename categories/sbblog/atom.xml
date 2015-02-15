@@ -4,7 +4,7 @@
   <title><![CDATA[Category: sbblog | sharedInstance]]></title>
   <link href="http://sharedinstance.net/categories/sbblog/atom.xml" rel="self"/>
   <link href="http://sharedinstance.net/"/>
-  <updated>2014-12-28T16:05:03+10:30</updated>
+  <updated>2015-02-15T18:25:54+10:30</updated>
   <id>http://sharedinstance.net/</id>
   <author>
     <name><![CDATA[sharedInstance]]></name>
@@ -14,7 +14,85 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Setting up SSH via USB connection]]></title>
+    <title type="html"><![CDATA[Setting up SSH via USB connection on Linux]]></title>
+    <link href="http://sharedinstance.net/2015/02/setting-up-ssh-via-usb-connection-linux/"/>
+    <updated>2015-02-15T10:06:18+10:30</updated>
+    <id>http://sharedinstance.net/2015/02/setting-up-ssh-via-usb-connection-linux</id>
+    <content type="html"><![CDATA[<p>This is a version of Aehmlo&rsquo;s original post, modified for Linux.</p>
+
+<p>When developing tweaks (or making themes, for that matter), it is often annoying to wait for files to copy (and commands to execute) over Wi-Fi - it tends to be very slow and sometimes unreliable, and one must keep track of IP addresses and such (even if they use a hosts file to map custom hostnames) in order to accomplish it. This annoyance can be greatly relieved by creating a local tunnel over a USB connection to the target device, and using that to SSH to the device much more quickly and reliably. In this tutorial, we will cover how to set up your Linux PC (there are other posts for <a href="/2015/02/setting-up-ssh-via-usb-connection-win/">Windows</a> and <a href="/2014/12/setting-up-ssh-via-usb-connection/">OS X</a>) so that port 2222 is forwarded to port 22 on whatever device is plugged in.</p>
+
+<!--more-->
+
+
+<p>First things first, make sure you have a recent version of libimobiledevice installed, as well as its utilities. On Debian and Ubuntu, the package name is <code>libimobiledevice-utils</code>.</p>
+
+<p>In a terminal, run the following command to start the tunneling:</p>
+
+<pre><code class="bash">iproxy 2222 22
+</code></pre>
+
+<p>That&rsquo;s it!</p>
+
+<p>Having this run all the time in the background is different depending on what daemon system your distro uses. If your distro uses Upstart, such as Ubuntu, create a file as root at <code>/etc/init/iproxy.conf</code>:</p>
+
+<pre><code class="bash">sudo nano /etc/init/iproxy.conf
+</code></pre>
+
+<p>Enter the following:</p>
+
+<pre><code>start on runlevel [2345]
+stop on runlevel [!2345]
+
+setuid nobody
+setgid nogroup
+
+exec /usr/bin/iproxy 2222 22
+</code></pre>
+
+<p>Use <code>sudo start iproxy</code> to start it without having to reboot.</p>
+
+<p>Take a look at the <a href="/2014/12/setting-up-ssh-via-usb-connection/">original OS X post</a> to find out how to use this with Theos, and to prevent a false security error if you plug in a different device.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Setting up SSH via USB connection on Windows]]></title>
+    <link href="http://sharedinstance.net/2015/02/setting-up-ssh-via-usb-connection-win/"/>
+    <updated>2015-02-15T09:58:08+10:30</updated>
+    <id>http://sharedinstance.net/2015/02/setting-up-ssh-via-usb-connection-win</id>
+    <content type="html"><![CDATA[<p>This is a version of Aehmlo&rsquo;s original post, modified for Windows.</p>
+
+<p>When developing tweaks (or making themes, for that matter), it is often annoying to wait for files to copy (and commands to execute) over Wi-Fi - it tends to be very slow and sometimes unreliable, and one must keep track of IP addresses and such (even if they use a hosts file to map custom hostnames) in order to accomplish it. This annoyance can be greatly relieved by creating a local tunnel over a USB connection to the target device, and using that to SSH to the device much more quickly and reliably. In this tutorial, we will cover how to set up your Windows PC (there are other posts for <a href="/2015/02/setting-up-ssh-via-usb-connection-linux/">Linux</a> and <a href="/2014/12/setting-up-ssh-via-usb-connection/">OS X</a>) so that port 2222 is forwarded to port 22 on whatever device is plugged in.</p>
+
+<!--more-->
+
+
+<p>First things first, download the client from its <a href="https://code.google.com/p/iphonetunnel-usbmuxconnectbyport/downloads/detail?name=itunnel_mux_rev71.zip">download page</a> (note that you will need Windows XP and iTunes 10.5 or later for the client to work). Extract this zip - make sure you extract both the executable and the dll.</p>
+
+<p>In Command Prompt, <code>cd</code> to the folder you extracted the zip to and run the following:</p>
+
+<pre><code class="bash">itunnel_mux --iport 22 --lport 2222
+</code></pre>
+
+<p>From now on, the relay we have set up will always be running the background once you log in. Try it out in PuTTY by connecting to SSH at localhost, port 2222.</p>
+
+<p>If you use Cygwin, you can easily register this as a Windows service so it&rsquo;s always running. You will need to use the Cygwin setup from <a href="https://cygwin.com">cygwin.com</a> to install <em>cygrunsrv</em>, under the Admin category. Now, from a Cygwin shell run as an administrator:</p>
+
+<pre><code class="bash">cygrunsrv -I iTunnel -p /cygdrive/c/path/to/itunnel_mux.exe -a '--iport 22 --lport 2222' -u 'NETWORK SERVICE' -y 'Apple Mobile Device'
+net start itunnel
+</code></pre>
+
+<p>This creates a service with the name <code>itunnel</code>, which will run itunnel_mux.exe with the provided arguments. It&rsquo;ll execute as Windows&#8217; built in <code>NetworkService</code> account, and requires the Apple Mobile Device service to be up and running before iTunnel can start.</p>
+
+<p>When you update Cygwin packages, you should execute <code>net stop itunnel</code> (again, as an administrator) before the update and <code>net start itunnel</code> after. Otherwise, you may be told to restart your computer to replace in-use files.</p>
+
+<p>Take a look at the <a href="/2014/12/setting-up-ssh-via-usb-connection/">original OS X post</a> to find out how to use this with Theos, and to prevent a false security error if you plug in a different device.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Setting up SSH via USB connection on OS X]]></title>
     <link href="http://sharedinstance.net/2014/12/setting-up-ssh-via-usb-connection/"/>
     <updated>2014-12-28T15:03:02+10:30</updated>
     <id>http://sharedinstance.net/2014/12/setting-up-ssh-via-usb-connection</id>
@@ -228,74 +306,6 @@ NSUserDefaults *userDefaults;
 <p>The icon can be dropped at <code>/Library/PreferenceLoader/Preferences/TypeStatus.png</code>. Unfortunately for themers, this means it can&rsquo;t be themed with WinterBoard.</p>
 
 <p>Ok, that&rsquo;s easy enough, but I mention this because if one or two tweaks did this, it would look pretty odd. If more tweaks do this, it&rsquo;ll look completely normal. And, as Ryan Petrich noted in his <a href="http://rpetri.ch/wwjc2014/rpetrich_wwjc2014.pdf">WWJC talk</a> a few days ago, every tweak should have settings - even if it&rsquo;s just a single on/off switch.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Debugging memory issues in Substrate tweaks]]></title>
-    <link href="http://sharedinstance.net/2014/02/debugging-memory-issues/"/>
-    <updated>2014-02-10T00:00:00+10:30</updated>
-    <id>http://sharedinstance.net/2014/02/debugging-memory-issues</id>
-    <content type="html"><![CDATA[<p>Memory issues in MobileSubstrate tweaks are generally not very easy to debug. In the following text I&rsquo;m explaining some useful tools for finding overreleases and leaks in your own tweaks.</p>
-
-<!--more-->
-
-
-<p>One useful trick is to override <code>- (void)dealloc</code> in your subclasses and write a message to the syslog; that way you can make sure your objects are actually getting freed after usage. If dealloc is not getting called, you probably need to release that object once more. Keep in mind you should remove those logs for release builds of your tweaks. An easy way to do this is by adding this:</p>
-
-<pre><code class="objc">#ifndef DEBUG
-#define NSLog
-#endif
-</code></pre>
-
-<p>On top of your tweaks makefile, add <code>DEBUG=1</code> to enable NSLogs, set it to zero or remove the line to disable all logs. You can also pass it to make at the command line, for instance: <code>make package install DEBUG=1</code>.</p>
-
-<p>Another extremely useful trick if you experience crashes from use-after-free issues is to enable zombie objects. To enable those in any process you want (e.x. SpringBoard), ssh into your device, attach to the process with <code>cycript -p processname</code> first. Then declare _CFEnableZombies() in cycript like so:</p>
-
-<pre><code class="javascript">_CFEnableZombies = new Functor(dlsym(RTLD_DEFAULT, "_CFEnableZombies"), "v");
-</code></pre>
-
-<p>Now you can enable zombie objects simply by calling <code>_CFEnableZombies()</code>. Open up a syslog and keep and eye on it while the memory crash happens. You’ll see a message like this one:</p>
-
-<pre><code class="plain">&lt;Error&gt;: *** -[UIWindow methodSignatureForSelector:]: message sent to deallocated instance 0x162a7730`
-</code></pre>
-
-<p>There we go! Now just search for the (in this example) <code>methodSignatureForSelector:</code> in your code and fix the memory crash!</p>
-
-<p>Happy debugging!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Important: Update your tweaks to support arm64]]></title>
-    <link href="http://sharedinstance.net/2013/12/how-to-support-arm64/"/>
-    <updated>2013-12-24T00:00:00+10:30</updated>
-    <id>http://sharedinstance.net/2013/12/how-to-support-arm64</id>
-    <content type="html"><![CDATA[<p>The iPhone 5s, iPad Air and iPad mini (2nd generation) both run on a completely new processor architecture: arm64. If you haven&rsquo;t heard, this architecture is 64-bit, unlike the previous 32-bit architectures (armv6, armv7 and armv7s). Of course, these devices are still backwards compatible with the 32-bit architectures, but for 64-bit processes, <strong>dynamic libraries not compiled for arm64 will not be loaded into them.</strong></p>
-
-<!--more-->
-
-
-<p>However, updating your tweak to work on arm64 is fairly simple. It does come with one caveat, however: you are required to compile with the iOS 7.0 or newer SDK. If you&rsquo;re not using Xcode 5 or newer to compile your tweaks, you must do so in order to fully support these devices.</p>
-
-<p>Unfortunately, if you&rsquo;re not using the official toolchain (included with Xcode) to build your tweaks, it is currently not possible to support arm64, since Apple is yet to release the source code for the open-source tools included with the Xcode 5 toolchain.</p>
-
-<p>Before you start, be sure to <a href="https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaTouch64BitGuide/ConvertingYourAppto64-Bit/ConvertingYourAppto64-Bit.html">update your code for arm64</a>. Please also remember that Substrate is currently not updated for arm64, so you may want to hold off on doing this if you don&rsquo;t have an arm64 device to test with.</p>
-
-<h2>The easy way</h2>
-
-<p><strong style="font-size: 1.05em;">(If you don&rsquo;t need to support iOS 4.2.1 or older)</strong></p>
-
-<p>The easiest way to fix this issue is simply to start using the iOS 7 SDK, and force theos to build your tweaks for both armv7 and arm64. If you have Xcode 5, you&rsquo;ve most likely already completed the first part (if not, head to the App Store and update Xcode!). The second part is still fairly easy: open your project&rsquo;s makefile and add this line above the first <code>include</code>:</p>
-
-<pre><code class="make">ARCHS = armv7 arm64
-</code></pre>
-
-<p>Finally, download <a href="http://cdn.hbang.ws/dl/libsubstrate_arm64.dylib">this build of the libsubstrate.dylib stub</a> (contains armv6/armv7/armv7s/arm64 as well as i386 for OS X and x86_64 for iOS Simulator) and replace the existing file at $THEOS/lib/libsubstrate.dylib. That&rsquo;s it!</p>
-
-<h2>The slightly more complex way</h2>
-
-<p>It may not be viable to compile only against the iOS 7 SDK, since that might mean dropping support for iOS versions before 4.3.  If you have a preference bundle, wee app, or anything else that is loaded into an arm64 process, don&rsquo;t forget that you&rsquo;ll need to perform the same thing to its binaries too. There are tons of goodies available on <a href="http://iphonedevwiki.net/index.php/Updating_extensions_for_iOS_7#Tweaks_that_do_need_iOS_4.2.1_and_below_compatibility">the dev wiki</a> for this situation - and also has tips for issues that you may come across.</p>
 ]]></content>
   </entry>
   
