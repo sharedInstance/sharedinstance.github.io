@@ -4,7 +4,7 @@
   <title><![CDATA[Category: sbblog | sharedInstance]]></title>
   <link href="http://sharedinstance.net/categories/sbblog/atom.xml" rel="self"/>
   <link href="http://sharedinstance.net/"/>
-  <updated>2015-02-15T18:25:54+10:30</updated>
+  <updated>2015-02-15T18:53:31+10:30</updated>
   <id>http://sharedinstance.net/</id>
   <author>
     <name><![CDATA[sharedInstance]]></name>
@@ -12,6 +12,139 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Doing tweak settings the right-er way]]></title>
+    <link href="http://sharedinstance.net/2015/02/settings-the-right-way-redux/"/>
+    <updated>2015-02-15T18:50:56+10:30</updated>
+    <id>http://sharedinstance.net/2015/02/settings-the-right-way-redux</id>
+    <content type="html"><![CDATA[<p>As it turned out, retrieving tweak settings from <code>NSUserDefaults</code> as outlined in <a href="/2014/11/settings-the-right-way/">the post I wrote</a> a few months ago proved to not be very robust and still had problems within a sandboxed process.</p>
+
+<p>At one point several months prior to the <a href="https://hbang.github.io/libcephei/">libcephei</a> update a few weeks ago, I thought about how preferences loading could be improved, and started working on a class called <code>HBPreferences</code>. The idea is that either you keep an instance of this class as a global variable in your tweak, and use it basically as you would with <code>NSUserDefaults</code>. Or, you can take it one step further than what <code>NSUserDefaults</code> is capable of and &ldquo;register&rdquo; a variable&rsquo;s pointer so it&rsquo;ll always be up to date with no preference reloading code required in your tweak.</p>
+
+<p>If you don&rsquo;t already understand the changes made in iOS 8, refer to the first few paragraphs of <a href="/2014/11/settings-the-right-way/">the original post</a>.</p>
+
+<!--more-->
+
+
+<h2>Setting up libcephei with Theos</h2>
+
+<p>You will need to copy libcephei&rsquo;s headers and libraries to your development machine so the compiler and linker respectively are aware of it.</p>
+
+<p>You won&rsquo;t find libcephei in Cydia by searching for &ldquo;Cephei&rdquo; because it&rsquo;s been set as hidden. However, you can install a package that depends on it like TypeStatus, or install &ldquo;APT 0.7 Strict&rdquo; (<code>apt7</code>) if you don&rsquo;t already have it and run:</p>
+
+<pre><code class="bash">apt-get install ws.hbang.common
+</code></pre>
+
+<p>On your development machine, copy the required files like so:</p>
+
+<pre><code class="bash">THEOS=/opt/theos  # if you don't already have $THEOS set, set it to the location of theos
+THEOS_DEVICE_IP=iphone  # and set these two if you haven't already
+THEOS_DEVICE_PORT=22
+
+scp -P $THEOS_DEVICE_PORT root@$THEOS_DEVICE_IP:/usr/lib/libcephei\* $THEOS/lib
+scp -r -P $THEOS_DEVICE_PORT root@$THEOS_DEVICE_IP:/usr/include/\{Cephei,CepheiPrefs\} $THEOS/include
+</code></pre>
+
+<p>Now, open your project&rsquo;s makefile and add:</p>
+
+<pre><code class="make">TargetName_LIBRARIES += cephei
+</code></pre>
+
+<p>In your <code>control</code> file, add <code>ws.hbang.common</code> to your dependencies, and set it to require the latest version or newer. At the time of writing, that&rsquo;s version 1.2, so for example:</p>
+
+<pre><code>Depends: mobilesubstrate, ws.hbang.common (&gt;= 1.2)
+</code></pre>
+
+<h2><code>NSUserDefaults</code> compatible method</h2>
+
+<p>This method has almost no changes from the example on the original post - just replace <code>NSUserDefaults</code> with <code>HBPreferences</code> and initialise with the <code>initWithIdentifier:</code> method like so:</p>
+
+<pre><code class="objc">static NSString *const kHBCBPreferencesDomain = @"ws.hbang.cobalia";
+static NSString *const kHBCBPreferencesEnabledKey = @"Enabled";
+static NSString *const kHBCBPreferencesSwitchesKey = @"Switches";
+static NSString *const kHBCBPreferencesSectionLabelKey = @"SectionLabel";
+static NSString *const kHBCBPreferencesSwitchLabelsKey = @"SwitchLabels";
+
+HBPreferences *preferences;
+
+%init {
+    preferences = [[HBPreferences alloc] initWithIdentifier:kHBCBPreferencesDomain];
+
+    [preferences registerDefaults:@{
+        kHBCBPreferencesEnabledKey: @YES,
+        kHBCBPreferencesSwitchesKey: @[ /* ... */ ],
+        kHBCBPreferencesSectionLabelKey: @YES,
+        kHBCBPreferencesSwitchLabelsKey: @YES
+    }];
+}
+</code></pre>
+
+<p>I use constants for strings that shouldn&rsquo;t ever change - you don&rsquo;t need to but I&rsquo;d recommend it. If you prefer, you can also set keys on <code>preferences.defaults</code> directly, as it&rsquo;s an <code>NSMutableDictionary</code>.</p>
+
+<p>Once again, it&rsquo;s as simple as <code>[preferences objectForKey:kHBCBPreferencesEnabledKey]</code> to get an Objective-C object (or nil if there&rsquo;s no value and no default registered), or get a primitive directly using any of <code>bool</code>, <code>double</code>, <code>integer</code>, or <code>floatForKey:</code>.</p>
+
+<h2>Legacy library support</h2>
+
+<p>As mentioned in the previous post, at the time that <a href="https://www.hbang.ws/tweaks/cobalia">Cobalia</a> was written, Flipswitch was not yet updated to support the new preferences system. Here is how it was fixed - by reading the plist from the disk and copying the data into the in-memory preferences cache:</p>
+
+<pre><code class="objc">void HBCBPreferencesChanged() {
+    NSDictionary *plist = [NSDictionary dictionaryWithContentsOfFile:[[[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES)[0] stringByAppendingPathComponent:@"Preferences"] stringByAppendingPathComponent:kHBCBPreferencesDomain] stringByAppendingPathExtension:@"plist"]];
+
+    if (plist[kHBCBPreferencesSwitchesKey]) {
+        [preferences setObject:plist[kHBCBPreferencesSwitchesKey] forKey:kHBCBPreferencesSwitchesKey];
+    }
+}
+
+%ctor {
+    HBCBPreferencesChanged();
+    CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)HBCBPreferencesChanged, CFSTR("ws.hbang.cobalia/ReloadPrefs"), NULL, kNilOptions);
+}
+</code></pre>
+
+<p>Obviously you&rsquo;ll also need to set the appropriate key in your preference specifiers for a Darwin notification to be posted with the name you provide.</p>
+
+<h2>Variable registration</h2>
+
+<p>Finally, I want to explain the most powerful feature of <code>HBPreferences</code>: being able to &ldquo;register&rdquo; a variable so that its value is always kept up to date. This is quite easy to do:</p>
+
+<pre><code class="objc">BOOL enabled;
+NSArray *switches;
+BOOL sectionLabel, switchLabel;
+
+%init {
+    HBPreferences *preferences = [HBPreferences preferencesWithIdentifier:@"ws.hbang.cobalia"];
+
+    [preferences registerBool:&amp;enabled default:YES forKey:@"Enabled"];
+    [preferences registerObject:&amp;switches default:@[ /* ... */ ] forKey:@"Switches"];
+    [preferences registerBool:&amp;sectionLabel default:YES forKey:@"SectionLabel"];
+    [preferences registerBool:&amp;switchLabel default:YES forKey:@"SwitchLabels"];
+}
+</code></pre>
+
+<p>In your preference specifiers, ensure you have the <code>PostNotification</code> key set to the identifier you pass in to <code>HBPreferences</code>, followed by <code>/ReloadPrefs</code>. For example:</p>
+
+<pre><code class="xml">&lt;dict&gt;
+    &lt;key&gt;cell&lt;/key&gt;
+    &lt;string&gt;PSSwitchCell&lt;/string&gt;
+    &lt;key&gt;default&lt;/key&gt;
+    &lt;true/&gt;
+    &lt;key&gt;defaults&lt;/key&gt;
+    &lt;string&gt;ws.hbang.cobalia&lt;/string&gt;
+    &lt;key&gt;key&lt;/key&gt;
+    &lt;string&gt;Enabled&lt;/string&gt;
+    &lt;key&gt;label&lt;/key&gt;
+    &lt;string&gt;Enabled&lt;/string&gt;
+    &lt;key&gt;PostNotification&lt;/key&gt;
+    &lt;string&gt;ws.hbang.cobalia/ReloadPrefs&lt;/string&gt;
+&lt;/dict&gt;
+</code></pre>
+
+<p>And that&rsquo;s it - now all you need to do is refer to these variables as you always would. You don&rsquo;t need to worry at all about what happens when the user changes a setting; <code>HBPreferences</code> takes care of it for you and updates your variables.</p>
+
+<p>If you want to learn more about what libcephei can do, take a look at <a href="https://hbang.github.io/libcephei/">its documentation</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Setting up SSH via USB connection on Linux]]></title>
@@ -177,7 +310,9 @@ It is also possible that a host key has just been changed.
     <link href="http://sharedinstance.net/2014/11/settings-the-right-way/"/>
     <updated>2014-11-26T18:02:34+10:30</updated>
     <id>http://sharedinstance.net/2014/11/settings-the-right-way</id>
-    <content type="html"><![CDATA[<p>You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html"><code>cfprefsd</code></a> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
+    <content type="html"><![CDATA[<p><strong>Please refer to the <a href="/2015/02/settings-the-right-way-redux/">revision</a> of this post.</strong></p>
+
+<p>You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html"><code>cfprefsd</code></a> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
 
 <!--more-->
 
@@ -238,74 +373,6 @@ NSUserDefaults *userDefaults;
 <p>Obviously you&rsquo;ll also need to set the appropriate key in your preference specifiers for a Darwin notification to be posted with the name you provide.</p>
 
 <p>If you&rsquo;d like to see what else people are using for their tweaks, there are a few others you can explore that are listed on the iPhone Dev Wiki&rsquo;s <a href="http://iphonedevwiki.net/index.php/Updating_extensions_for_iOS_8#Preference_saving">updating extensions for iOS 8</a> article. To me, this is the most simple and elegant, and almost exactly what you&rsquo;d ideally be using anyway in a standard iOS or OS X application - but you&rsquo;re of course allowed to use whichever looks best to you.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Adding simple toggles in the Settings root list]]></title>
-    <link href="http://sharedinstance.net/2014/04/settings-root-toggles/"/>
-    <updated>2014-04-18T11:04:22+09:30</updated>
-    <id>http://sharedinstance.net/2014/04/settings-root-toggles</id>
-    <content type="html"><![CDATA[<p>I just wanted to post a quick trick you can use to show a toggle in the root Settings list view.</p>
-
-<p>If you generate a new preference bundle project with NIC and open <code>entry.plist</code>, you&rsquo;ll find this:</p>
-
-<!--more-->
-
-
-<pre><code class="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
-&lt;plist version="1.0"&gt;
-&lt;dict&gt;
-    &lt;key&gt;entry&lt;/key&gt;
-    &lt;dict&gt;
-        &lt;key&gt;bundle&lt;/key&gt;
-        &lt;string&gt;TypeStatus&lt;/string&gt;
-        &lt;key&gt;cell&lt;/key&gt;
-        &lt;string&gt;PSLinkCell&lt;/string&gt;
-        &lt;key&gt;detail&lt;/key&gt;
-        &lt;string&gt;HBTSListController&lt;/string&gt;
-        &lt;key&gt;icon&lt;/key&gt;
-        &lt;string&gt;icon.png&lt;/string&gt;
-        &lt;key&gt;isController&lt;/key&gt;
-        &lt;true/&gt;
-        &lt;key&gt;label&lt;/key&gt;
-        &lt;string&gt;TypeStatus&lt;/string&gt;
-    &lt;/dict&gt;
-&lt;/dict&gt;
-&lt;/plist&gt;
-</code></pre>
-
-<p>Indeed, the cells shown in the root of Settings courtesy of PreferenceLoader are customizable. You could slap your whole settings panel there if you wanted (but that&rsquo;s clearly not a good idea). What you <em>could</em> do, though, is use it for tweaks whose settings consist of nothing more than an &ldquo;enabled&rdquo; toggle.</p>
-
-<pre><code class="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
-&lt;plist version="1.0"&gt;
-&lt;dict&gt;
-    &lt;key&gt;entry&lt;/key&gt;
-    &lt;dict&gt;
-        &lt;key&gt;cell&lt;/key&gt;
-        &lt;string&gt;PSSwitchCell&lt;/string&gt;
-        &lt;key&gt;default&lt;/key&gt;
-        &lt;true/&gt;
-        &lt;key&gt;defaults&lt;/key&gt;
-        &lt;string&gt;ws.hbang.typestatus&lt;/string&gt;
-        &lt;key&gt;icon&lt;/key&gt;
-        &lt;string&gt;TypeStatus.png&lt;/string&gt;
-        &lt;key&gt;label&lt;/key&gt;
-        &lt;string&gt;TypeStatus&lt;/string&gt;
-        &lt;key&gt;key&lt;/key&gt;
-        &lt;string&gt;Enabled&lt;/string&gt;
-        &lt;key&gt;PostNotification&lt;/key&gt;
-        &lt;string&gt;ws.hbang.typestatus/ReloadPrefs&lt;/string&gt;
-    &lt;/dict&gt;
-&lt;/dict&gt;
-&lt;/plist&gt;
-</code></pre>
-
-<p>The icon can be dropped at <code>/Library/PreferenceLoader/Preferences/TypeStatus.png</code>. Unfortunately for themers, this means it can&rsquo;t be themed with WinterBoard.</p>
-
-<p>Ok, that&rsquo;s easy enough, but I mention this because if one or two tweaks did this, it would look pretty odd. If more tweaks do this, it&rsquo;ll look completely normal. And, as Ryan Petrich noted in his <a href="http://rpetri.ch/wwjc2014/rpetrich_wwjc2014.pdf">WWJC talk</a> a few days ago, every tweak should have settings - even if it&rsquo;s just a single on/off switch.</p>
 ]]></content>
   </entry>
   

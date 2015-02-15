@@ -7,7 +7,7 @@
   <meta name="author" content="sharedInstance">
 
   
-  <meta name="description" content="You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the cfprefsd concept from OS X (as long &hellip;">
+  <meta name="description" content="Please refer to the revision of this post. You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is &hellip;">
   
 
   <meta name="HandheldFriendly" content="True">
@@ -89,7 +89,9 @@
   </header>
 
 
-<div class="entry-content"><p>You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html"><code>cfprefsd</code></a> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
+<div class="entry-content"><p><strong>Please refer to the <a href="/2015/02/settings-the-right-way-redux/">revision</a> of this post.</strong></p>
+
+<p>You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html"><code>cfprefsd</code></a> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
 
 <!--more-->
 

@@ -7,7 +7,7 @@
   <meta name="author" content="sharedInstance">
 
   
-  <meta name="description" content="This is a version of Aehmlo&rsquo;s original post, modified for Linux. When developing tweaks (or making themes, for that matter), it is often &hellip;">
+  <meta name="description" content="As it turned out, retrieving tweak settings from NSUserDefaults as outlined in the post I wrote a few months ago proved to not be very robust and &hellip;">
   
 
   <meta name="HandheldFriendly" content="True">
@@ -67,6 +67,47 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/2015/02/settings-the-right-way-redux/">Doing tweak settings the right-er way</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-02-15T18:50:56+10:30'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>6:50 pm</span></time>
+        
+           &mdash; <a href="/2015/02/settings-the-right-way-redux/#disqus_thread"
+             data-disqus-identifier="http://sharedinstance.net/2015/02/settings-the-right-way-redux/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>As it turned out, retrieving tweak settings from <code>NSUserDefaults</code> as outlined in <a href="/2014/11/settings-the-right-way/">the post I wrote</a> a few months ago proved to not be very robust and still had problems within a sandboxed process.</p>
+
+<p>At one point several months prior to the <a href="https://hbang.github.io/libcephei/">libcephei</a> update a few weeks ago, I thought about how preferences loading could be improved, and started working on a class called <code>HBPreferences</code>. The idea is that either you keep an instance of this class as a global variable in your tweak, and use it basically as you would with <code>NSUserDefaults</code>. Or, you can take it one step further than what <code>NSUserDefaults</code> is capable of and &ldquo;register&rdquo; a variable&rsquo;s pointer so it&rsquo;ll always be up to date with no preference reloading code required in your tweak.</p>
+
+<p>If you don&rsquo;t already understand the changes made in iOS 8, refer to the first few paragraphs of <a href="/2014/11/settings-the-right-way/">the original post</a>.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/2015/02/settings-the-right-way-redux/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -207,7 +248,9 @@
   </header>
 
 
-  <div class="entry-content"><p>You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html"><code>cfprefsd</code></a> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
+  <div class="entry-content"><p><strong>Please refer to the <a href="/2015/02/settings-the-right-way-redux/">revision</a> of this post.</strong></p>
+
+<p>You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html"><code>cfprefsd</code></a> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
 
 </div>
   
@@ -409,48 +452,9 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/2013/10/welcome-to-sharedinstance/">Welcome to sharedInstance!</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-10-10'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:00 am</span></time>
-        
-           &mdash; <a href="/2013/10/welcome-to-sharedinstance/#disqus_thread"
-             data-disqus-identifier="http://sharedinstance.net/2013/10/welcome-to-sharedinstance/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Welcome to sharedInstance!</p>
-
-<p>Here you can access the latest blog posts from the perspective of various Jailbreak Tweak Developers, iOS Hackers and many more.</p>
-
-<p>You can expect tweak reviews, some tutorials and also tips that’ll help you make better jailbreak tweaks.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/2013/10/welcome-to-sharedinstance/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="2">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     

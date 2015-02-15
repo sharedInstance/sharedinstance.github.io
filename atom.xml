@@ -4,7 +4,7 @@
   <title><![CDATA[sharedInstance]]></title>
   <link href="http://sharedinstance.net/atom.xml" rel="self"/>
   <link href="http://sharedinstance.net/"/>
-  <updated>2015-02-15T18:25:54+10:30</updated>
+  <updated>2015-02-15T18:53:31+10:30</updated>
   <id>http://sharedinstance.net/</id>
   <author>
     <name><![CDATA[sharedInstance]]></name>
@@ -12,6 +12,212 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Doing tweak settings the right-er way]]></title>
+    <link href="http://sharedinstance.net/2015/02/settings-the-right-way-redux/"/>
+    <updated>2015-02-15T18:50:56+10:30</updated>
+    <id>http://sharedinstance.net/2015/02/settings-the-right-way-redux</id>
+    <content type="html"><![CDATA[<p>As it turned out, retrieving tweak settings from <code>NSUserDefaults</code> as outlined in <a href="http://sharedinstance.net/2014/11/settings-the-right-way/">the post I wrote</a> a few months ago proved to not be very robust and still had problems within a sandboxed process.</p>
+
+<p>At one point several months prior to the <a href="https://hbang.github.io/libcephei/">libcephei</a> update a few weeks ago, I thought about how preferences loading could be improved, and started working on a class called <code>HBPreferences</code>. The idea is that either you keep an instance of this class as a global variable in your tweak, and use it basically as you would with <code>NSUserDefaults</code>. Or, you can take it one step further than what <code>NSUserDefaults</code> is capable of and &ldquo;register&rdquo; a variable&rsquo;s pointer so it&rsquo;ll always be up to date with no preference reloading code required in your tweak.</p>
+
+<p>If you don&rsquo;t already understand the changes made in iOS 8, refer to the first few paragraphs of <a href="http://sharedinstance.net/2014/11/settings-the-right-way/">the original post</a>.</p>
+
+<!--more-->
+
+
+<h2>Setting up libcephei with Theos</h2>
+
+<p>You will need to copy libcephei&rsquo;s headers and libraries to your development machine so the compiler and linker respectively are aware of it.</p>
+
+<p>You won&rsquo;t find libcephei in Cydia by searching for &ldquo;Cephei&rdquo; because it&rsquo;s been set as hidden. However, you can install a package that depends on it like TypeStatus, or install &ldquo;APT 0.7 Strict&rdquo; (<code>apt7</code>) if you don&rsquo;t already have it and run:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>apt-get install ws.hbang.common
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>On your development machine, copy the required files like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">THEOS</span><span class="o">=</span>/opt/theos  <span class="c"># if you don&#39;t already have $THEOS set, set it to the location of theos</span>
+</span><span class='line'><span class="nv">THEOS_DEVICE_IP</span><span class="o">=</span>iphone  <span class="c"># and set these two if you haven&#39;t already</span>
+</span><span class='line'><span class="nv">THEOS_DEVICE_PORT</span><span class="o">=</span>22
+</span><span class='line'>
+</span><span class='line'>scp -P <span class="nv">$THEOS_DEVICE_PORT</span> root@<span class="nv">$THEOS_DEVICE_IP</span>:/usr/lib/libcephei<span class="se">\*</span> <span class="nv">$THEOS</span>/lib
+</span><span class='line'>scp -r -P <span class="nv">$THEOS_DEVICE_PORT</span> root@<span class="nv">$THEOS_DEVICE_IP</span>:/usr/include/<span class="se">\{</span>Cephei,CepheiPrefs<span class="se">\}</span> <span class="nv">$THEOS</span>/include
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, open your project&rsquo;s makefile and add:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='make'><span class='line'><span class="nv">TargetName_LIBRARIES</span> <span class="o">+=</span> cephei
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In your <code>control</code> file, add <code>ws.hbang.common</code> to your dependencies, and set it to require the latest version or newer. At the time of writing, that&rsquo;s version 1.2, so for example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='make'><span class='line'><span class="nf">Depends</span><span class="o">:</span> <span class="n">mobilesubstrate</span><span class="p">,</span> <span class="n">ws</span>.<span class="n">hbang</span>.<span class="n">common</span> (&gt;= 1.2)
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2><code>NSUserDefaults</code> compatible method</h2>
+
+<p>This method has almost no changes from the example on the original post - just replace <code>NSUserDefaults</code> with <code>HBPreferences</code> and initialise with the <code>initWithIdentifier:</code> method like so:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">static</span> <span class="bp">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesDomain</span> <span class="o">=</span> <span class="s">@&quot;ws.hbang.cobalia&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">static</span> <span class="bp">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesEnabledKey</span> <span class="o">=</span> <span class="s">@&quot;Enabled&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">static</span> <span class="bp">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSwitchesKey</span> <span class="o">=</span> <span class="s">@&quot;Switches&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">static</span> <span class="bp">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSectionLabelKey</span> <span class="o">=</span> <span class="s">@&quot;SectionLabel&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">static</span> <span class="bp">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">kHBCBPreferencesSwitchLabelsKey</span> <span class="o">=</span> <span class="s">@&quot;SwitchLabels&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">HBPreferences</span> <span class="o">*</span><span class="n">preferences</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">%</span><span class="n">init</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">preferences</span> <span class="o">=</span> <span class="p">[[</span><span class="n">HBPreferences</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithIdentifier</span><span class="p">:</span><span class="n">kHBCBPreferencesDomain</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">[</span><span class="n">preferences</span> <span class="nl">registerDefaults</span><span class="p">:</span><span class="l">@{</span>
+</span><span class='line'>      <span class="nl">kHBCBPreferencesEnabledKey</span><span class="p">:</span> <span class="m">@YES</span><span class="p">,</span>
+</span><span class='line'>      <span class="nl">kHBCBPreferencesSwitchesKey</span><span class="p">:</span> <span class="l">@[</span> <span class="cm">/* ... */</span> <span class="l">]</span><span class="p">,</span>
+</span><span class='line'>      <span class="nl">kHBCBPreferencesSectionLabelKey</span><span class="p">:</span> <span class="m">@YES</span><span class="p">,</span>
+</span><span class='line'>      <span class="nl">kHBCBPreferencesSwitchLabelsKey</span><span class="p">:</span> <span class="m">@YES</span>
+</span><span class='line'>  <span class="l">}</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I use constants for strings that shouldn&rsquo;t ever change - you don&rsquo;t need to but I&rsquo;d recommend it. If you prefer, you can also set keys on <code>preferences.defaults</code> directly, as it&rsquo;s an <code>NSMutableDictionary</code>.</p>
+
+<p>Once again, it&rsquo;s as simple as <code>[preferences objectForKey:kHBCBPreferencesEnabledKey]</code> to get an Objective-C object (or nil if there&rsquo;s no value and no default registered), or get a primitive directly using any of <code>bool</code>, <code>double</code>, <code>integer</code>, or <code>floatForKey:</code>.</p>
+
+<h2>Legacy library support</h2>
+
+<p>As mentioned in the previous post, at the time that <a href="https://www.hbang.ws/tweaks/cobalia">Cobalia</a> was written, Flipswitch was not yet updated to support the new preferences system. Here is how it was fixed - by reading the plist from the disk and copying the data into the in-memory preferences cache:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="kt">void</span> <span class="nf">HBCBPreferencesChanged</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="bp">NSDictionary</span> <span class="o">*</span><span class="n">plist</span> <span class="o">=</span> <span class="p">[</span><span class="bp">NSDictionary</span> <span class="nl">dictionaryWithContentsOfFile</span><span class="p">:[[[</span><span class="n">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="n">NSLibraryDirectory</span><span class="p">,</span> <span class="n">NSUserDomainMask</span><span class="p">,</span> <span class="nb">YES</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="nl">stringByAppendingPathComponent</span><span class="p">:</span><span class="s">@&quot;Preferences&quot;</span><span class="p">]</span> <span class="nl">stringByAppendingPathComponent</span><span class="p">:</span><span class="n">kHBCBPreferencesDomain</span><span class="p">]</span> <span class="nl">stringByAppendingPathExtension</span><span class="p">:</span><span class="s">@&quot;plist&quot;</span><span class="p">]];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">plist</span><span class="p">[</span><span class="n">kHBCBPreferencesSwitchesKey</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">preferences</span> <span class="nl">setObject</span><span class="p">:</span><span class="n">plist</span><span class="p">[</span><span class="n">kHBCBPreferencesSwitchesKey</span><span class="p">]</span> <span class="nl">forKey</span><span class="p">:</span><span class="n">kHBCBPreferencesSwitchesKey</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">%</span><span class="n">ctor</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">HBCBPreferencesChanged</span><span class="p">();</span>
+</span><span class='line'>  <span class="n">CFNotificationCenterAddObserver</span><span class="p">(</span><span class="n">CFNotificationCenterGetDarwinNotifyCenter</span><span class="p">(),</span> <span class="nb">NULL</span><span class="p">,</span> <span class="p">(</span><span class="n">CFNotificationCallback</span><span class="p">)</span><span class="n">HBCBPreferencesChanged</span><span class="p">,</span> <span class="n">CFSTR</span><span class="p">(</span><span class="s">&quot;ws.hbang.cobalia/ReloadPrefs&quot;</span><span class="p">),</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">kNilOptions</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Obviously you&rsquo;ll also need to set the appropriate key in your preference specifiers for a Darwin notification to be posted with the name you provide.</p>
+
+<h2>Variable registration</h2>
+
+<p>Finally, I want to explain the most powerful feature of <code>HBPreferences</code>: being able to &ldquo;register&rdquo; a variable so that its value is always kept up to date. This is quite easy to do:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="kt">BOOL</span> <span class="n">enabled</span><span class="p">;</span>
+</span><span class='line'><span class="bp">NSArray</span> <span class="o">*</span><span class="n">switches</span><span class="p">;</span>
+</span><span class='line'><span class="kt">BOOL</span> <span class="n">sectionLabel</span><span class="p">,</span> <span class="n">switchLabel</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">%</span><span class="n">init</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">HBPreferences</span> <span class="o">*</span><span class="n">preferences</span> <span class="o">=</span> <span class="p">[</span><span class="n">HBPreferences</span> <span class="nl">preferencesWithIdentifier</span><span class="p">:</span><span class="s">@&quot;ws.hbang.cobalia&quot;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">[</span><span class="n">preferences</span> <span class="nl">registerBool</span><span class="p">:</span><span class="o">&amp;</span><span class="n">enabled</span> <span class="k">default</span><span class="o">:</span><span class="nb">YES</span> <span class="nl">forKey</span><span class="p">:</span><span class="s">@&quot;Enabled&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">preferences</span> <span class="nl">registerObject</span><span class="p">:</span><span class="o">&amp;</span><span class="n">switches</span> <span class="k">default</span><span class="o">:</span><span class="l">@[</span> <span class="cm">/* ... */</span> <span class="l">]</span> <span class="nl">forKey</span><span class="p">:</span><span class="s">@&quot;Switches&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">preferences</span> <span class="nl">registerBool</span><span class="p">:</span><span class="o">&amp;</span><span class="n">sectionLabel</span> <span class="k">default</span><span class="o">:</span><span class="nb">YES</span> <span class="nl">forKey</span><span class="p">:</span><span class="s">@&quot;SectionLabel&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">preferences</span> <span class="nl">registerBool</span><span class="p">:</span><span class="o">&amp;</span><span class="n">switchLabel</span> <span class="k">default</span><span class="o">:</span><span class="nb">YES</span> <span class="nl">forKey</span><span class="p">:</span><span class="s">@&quot;SwitchLabels&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In your preference specifiers, ensure you have the <code>PostNotification</code> key set to the identifier you pass in to <code>HBPreferences</code>, followed by <code>/ReloadPrefs</code>. For example:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>cell<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;string&gt;</span>PSSwitchCell<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>default<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;true/&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>defaults<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;string&gt;</span>ws.hbang.cobalia<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>key<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;string&gt;</span>Enabled<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>label<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;string&gt;</span>Enabled<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>PostNotification<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;string&gt;</span>ws.hbang.cobalia/ReloadPrefs<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dict&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that&rsquo;s it - now all you need to do is refer to these variables as you always would. You don&rsquo;t need to worry at all about what happens when the user changes a setting; <code>HBPreferences</code> takes care of it for you and updates your variables.</p>
+
+<p>If you want to learn more about what libcephei can do, take a look at <a href="https://hbang.github.io/libcephei/">its documentation</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Setting up SSH via USB connection on Linux]]></title>
@@ -236,7 +442,9 @@
     <link href="http://sharedinstance.net/2014/11/settings-the-right-way/"/>
     <updated>2014-11-26T18:02:34+10:30</updated>
     <id>http://sharedinstance.net/2014/11/settings-the-right-way</id>
-    <content type="html"><![CDATA[<p>You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html"><code>cfprefsd</code></a> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
+    <content type="html"><![CDATA[<p><strong>Please refer to the <a href="http://sharedinstance.net/2015/02/settings-the-right-way-redux/">revision</a> of this post.</strong></p>
+
+<p>You might have noticed that tweak settings have suddenly started acting different in iOS 8. This is because the <a href="https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man8/cfprefsd.8.html"><code>cfprefsd</code></a> concept from OS X (as long ago as in 10.8 Mountain Lion) has been brought across to iOS 8. When you change a setting now, the dictionary is no longer committed to disk immediately - rather, it&rsquo;s kept in memory by <code>cfprefsd</code> and only flushed to disk when the appropriate process (or <code>cfprefsd</code> itself) terminates. So with that in mind, how do you manage settings on iOS 8 now?</p>
 
 <!--more-->
 
