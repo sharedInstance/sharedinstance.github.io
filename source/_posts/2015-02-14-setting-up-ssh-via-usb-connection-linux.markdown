@@ -31,7 +31,7 @@ sudo nano /etc/init/iproxy.conf
 
 Enter the following:
 
-```upstart
+```
 start on runlevel [2345]
 stop on runlevel [!2345]
 
