@@ -56,3 +56,7 @@ disqus_show_comment_count: true
 
 # Google Analytics
 google_analytics_tracking_id: UA-28374943-5
+
+# GitHub
+github:
+  repository_url: https://github.com/sharedInstance/sharedinstance.github.io
