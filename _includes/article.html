@@ -1,7 +1,7 @@
 {% unless page.no_header %}
   <header>
     {% if index %}
-      <h1 class="entry-title"><a href="{{ post.url | prepend: site.baseurl }}">{% if site.titlecase %}{{ post.title | titlecase }}{% else %}{{ post.title }}{% endif %}</a></h1>
+      <h1 class="entry-title"><a href="{{ page.url | prepend: site.baseurl }}">{% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}</a></h1>
     {% else %}
       <h1 class="entry-title">{% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}</h1>
     {% endif %}
@@ -10,9 +10,9 @@
         Posted on {{ page.date | date: "%b %-d, %Y" }}
         {% if page.author %}by {{ page.author }}{% endif %}
         {% if page.meta %}&mdash; {{ page.meta }}{% endif %}
-        {% if site.disqus_short_name and page.comments != false and post.comments != false and site.disqus_show_comment_count == true %}
-        &mdash; <a href="{% if index %}{{ post.url | prepend: site.baseurl }}{% endif %}#disqus_thread"
-             data-disqus-identifier="{% if post.meta.disqus_id %}{{ post.meta.disqus_id }}{% else %}{{ post.url | prepend: site.url }}{% endif %}">Comments</a>
+        {% if site.disqus_short_name and page.comments != false and site.disqus_show_comment_count == true %}
+        &mdash; <a href="{% if index %}{{ page.url | prepend: site.baseurl }}{% endif %}#disqus_thread"
+             data-disqus-identifier="{% if page.meta.disqus_id %}{{ page.meta.disqus_id }}{% else %}{{ page.url | prepend: site.url }}{% endif %}">Comments</a>
         {% endif %}
       </p>
     {% endunless %}
@@ -23,7 +23,7 @@
   {% capture excerpted %}{{ content | has_excerpt }}{% endcapture %}
   {% if excerpted == 'true' %}
     <footer>
-      <a rel="full-article" href="{{ post.url | prepend: site.baseurl }}">{{ site.excerpt_link }}</a>
+      <a rel="full-article" href="{{ page.url | prepend: site.baseurl }}">{{ site.excerpt_link }}</a>
     </footer>
   {% endif %}
 {% else %}
