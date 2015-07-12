@@ -1,4 +1,0 @@
-User-Agent: *
-Allow: /
-
-Sitemap: http://sharedinstance.net/sitemap.xml
