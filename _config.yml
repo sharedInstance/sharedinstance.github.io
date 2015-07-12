@@ -1,0 +1,58 @@
+# ----------------------- #
+#      Main Configs       #
+# ----------------------- #
+
+url: http://sharedinstance.net
+title: sharedInstance
+subtitle: iOS jailbreak news and tutorials from iOS developers.
+author: sharedInstance
+simple_search: https://encrypted.google.com/search
+description: iOS jailbreak news and tutorials from iOS developers.
+
+# Default date format is "ordinal" (resulting in "July 22nd 2007")
+# You can customize the format as defined in
+# http://www.ruby-doc.org/core-1.9.2/Time.html#method-i-strftime
+# Additionally, %o will give you the ordinal representation of the day
+date_format: "ordinal"
+
+# RSS / Email (optional) subscription links (change if using something like Feedburner)
+subscribe_rss: /atom.xml
+subscribe_email:
+# RSS feeds can list your email address if you like
+email:
+
+# ----------------------- #
+#    Jekyll & Plugins     #
+# ----------------------- #
+
+# If publishing to a subdirectory as in http://site.com/project set 'root: /project'
+root: /
+permalink: /:year/:month/:title/
+category_dir: categories
+markdown: kramdown
+
+kramdown:
+  input: GFM
+
+paginate: 10          # Posts per page on the blog index
+paginate_path: "posts/:num"  # Directory base for pagination URLs eg. /posts/2/
+recent_posts: 5       # Posts in the sidebar Recent Posts section
+excerpt_link: "Read on &rarr;"  # "Continue reading" link text at the bottom of excerpted articles
+excerpt_separator: "<!--more-->"
+
+# Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
+# and add an array with the asides you want to use.
+# blog_index_asides:
+# post_asides:
+# page_asides:
+
+# ----------------------- #
+#   3rd Party Settings    #
+# ----------------------- #
+
+# Disqus Comments
+disqus_short_name: sharedinstance
+disqus_show_comment_count: true
+
+# Google Analytics
+google_analytics_tracking_id: UA-28374943-5

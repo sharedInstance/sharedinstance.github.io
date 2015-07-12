@@ -1,0 +1,33 @@
+figure.code .highlight {
+	background: $code-bg;
+	color: $code-color;
+	border-radius: .5em;
+	overflow-x: auto;
+
+	.gutter {
+		text-align: right;
+
+		pre {
+			padding: .5em;
+			background: $code-gutter-bg;
+
+			border: {
+				top-left-radius: .5em;
+				bottom-left-radius: .5em;
+			};
+		}
+	}
+
+	.code {
+		overflow: auto;
+
+		pre {
+			padding: {
+				top: .5em;
+				right: .5em;
+				bottom: .5em;
+				left: .6em;
+			};
+		}
+	}
+}

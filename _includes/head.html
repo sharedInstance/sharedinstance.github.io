@@ -1,0 +1,23 @@
+<head>
+  <meta charset="utf-8">
+
+  <title>{% if page.title %}{{ page.title }} &middot; {% endif %}{{ site.title }}</title>
+
+  <meta name="author" content="{{ site.author }}">
+  <meta name="description" content="{{ site.description }}">
+  {% if page.keywords %}<meta name="keywords" content="{{ page.keywords }}">{% endif %}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
+  <link rel="icon" href="{{ "/favicon.png?rev=2" | prepend: site.baseurl }}">
+  <link rel="alternate" href="{{ site.subscribe_rss }}" title="{{ site.title }}" type="application/atom+xml">
+
+  <link rel="stylesheet" href="{{ "/css/main.css" | prepend: site.baseurl }}">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:700|Source+Code+Pro:400,700">
+
+  <script src="/js/script.js" async></script>
+
+  {% if site.google_analytics_tracking_id %}
+  <script>var _gaq=[['_setAccount','{{ site.google_analytics_tracking_id }}'],['_trackPageview']];(function(d){var g=d.createElement('script'),s=d.scripts[0];g.src='https://ssl.google-analytics.com/ga.js';s.parentNode.insertBefore(g,s)}(document))</script>
+  {% endif %}
+</head>

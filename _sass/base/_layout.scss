@@ -1,0 +1,31 @@
+body {
+	padding-top: 54px;
+
+	> header > hgroup, > nav > .container, > #main, > footer {
+		padding: .8em;
+		margin: 0 auto;
+		max-width: $desktop-width;
+	}
+
+	> nav > .container {
+		padding-top: 0;
+	}
+}
+
+img {
+	max-width: 100%;
+}
+
+ul {
+	list-style-position: inside;
+}
+
+.left {
+	float: left;
+	clear: left;
+}
+
+.right {
+	float: right;
+	clear: right;
+}

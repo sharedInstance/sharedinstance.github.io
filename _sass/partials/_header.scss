@@ -1,0 +1,118 @@
+body > header, body > nav {
+	background: $header-bg;
+	color: $title-color;
+
+	a {
+		&, &:hover, &:focus, &:visited {
+			color: $title-color;
+			text-decoration: none;
+		}
+	}
+}
+
+.js body > header, body > nav {
+	box-shadow: 1px 1px 8px rgba(40, 40, 40, .5);
+}
+
+body > header {
+	height: 54px;
+
+	h1 {
+		margin-bottom: 0;
+
+		a {
+			padding: .3em;
+			margin: -.3em;
+		}
+	}
+}
+
+body > header, .js body > nav {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	width: 100%;
+}
+
+body > nav {
+	-webkit-transition: opacity 150ms ease-out;
+	-moz-transition: opacity 150ms ease-out;
+	-ms-transition: opacity 150ms ease-out;
+	-o-transition: opacity 150ms ease-out;
+	transition: opacity 150ms ease-out;
+
+	ul {
+		list-style: none;
+		float: left;
+
+		li {
+			display: inline-block;
+			margin: 0 0 0 .5em;
+		}
+
+		&.main-navigation {
+			float: right;
+			margin: 0 .5em 0 0;
+			line-height: 1.75em;
+		}
+	}
+
+	form {
+		float: left;
+
+		.search {
+			display: block;
+			padding: 0 3px;
+			font-family: inherit;
+			font-size: .9em;
+			width: 200px;
+		}
+	}
+}
+
+#js-navbutton {
+	display: none;
+	font-size: 2.3em;
+	float: right;
+	margin-top: -.6em;
+
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
+.js {
+	body > nav {
+		top: 0;
+		z-index: 1;
+		height: 0;
+
+		overflow: hidden;
+		opacity: 0;
+	}
+
+	body.nav-showing {
+		> header {
+			box-shadow: 1px 1px 8px transparent;
+
+			-webkit-transition-duration: 0s;
+			-moz-transition-duration: 0s;
+			-ms-transition-duration: 0s;
+			-o-transition-duration: 0s;
+			transition-duration: 0s;
+		}
+
+		> nav {
+			top: 54px;
+			height: auto;
+			opacity: 1;
+		}
+	}
+
+	#js-navbutton {
+		display: block;
+	}
+}
