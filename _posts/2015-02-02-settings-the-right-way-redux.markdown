@@ -57,7 +57,7 @@ static NSString *const kHBCBPreferencesSwitchLabelsKey = @"SwitchLabels";
 
 HBPreferences *preferences;
 
-%init {
+%ctor {
 	preferences = [[HBPreferences alloc] initWithIdentifier:kHBCBPreferencesDomain];
 
 	[preferences registerDefaults:@{
@@ -101,7 +101,7 @@ BOOL enabled;
 NSArray *switches;
 BOOL sectionLabel, switchLabel;
 
-%init {
+%ctor {
 	HBPreferences *preferences = [HBPreferences preferencesWithIdentifier:@"ws.hbang.cobalia"];
 
 	[preferences registerBool:&enabled default:YES forKey:@"Enabled"];
