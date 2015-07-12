@@ -1,4 +1,0 @@
-[submodule "_deploy"]
-	path = _deploy
-	url = git@github.com:sharedInstance/sharedinstance.github.io.git
-	branch = master

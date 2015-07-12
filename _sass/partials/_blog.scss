@@ -1,0 +1,42 @@
+.entry-title {
+	a {
+		display: block;
+		text-decoration: none;
+	}
+}
+
+.hentry .entry-title {
+	font-size: 3em;
+}
+
+article {
+	margin-top: 2em;
+}
+
+.meta {
+	margin: .5em 0;
+	font-size: .8em;
+	color: $footer-color;
+}
+
+.entry-content {
+	p, figure.code {
+		margin: 1em 0;
+	}
+}
+
+.pagination {
+	text-align: center;
+	padding: .2em 0;
+	font-size: .9em;
+	font-weight: bold;
+}
+
+.comments {
+	clear: both;
+	padding-top: 2em;
+}
+
+.comments h1 {
+	display: none;
+}
