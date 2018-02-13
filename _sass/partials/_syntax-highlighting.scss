@@ -1,6 +1,13 @@
-.highlight {
-    background: #fff;
+div.highlight, code.language-plain {
+    display: block;
+    background: #f7f7f7;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 6px;
+    overflow: auto;
+}
 
+div.highlight {
     .c     { color: #998; font-style: italic } // Comment
     .err   { color: #a61717; background-color: #e3d2d2 } // Error
     .k     { font-weight: bold } // Keyword
