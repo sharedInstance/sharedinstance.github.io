@@ -7,7 +7,7 @@ author: bensge
 comments: true
 ---
 
-Memory issues in MobileSubstrate tweaks are generally not very easy to debug. In the following text I'm explaining some useful tools for finding overreleases and leaks in your own tweaks.
+Memory issues in MobileSubstrate tweaks are generally not very easy to debug. In the following text I’m explaining some useful tools for finding overreleases and leaks in your own tweaks.
 
 One useful trick is to override `- (void)dealloc` in your subclasses and write a message to the syslog; that way you can make sure your objects are actually getting freed after usage. If dealloc is not getting called, you probably need to release that object once more. Keep in mind you should remove those logs for release builds of your tweaks. An easy way to do this is by adding this:
 

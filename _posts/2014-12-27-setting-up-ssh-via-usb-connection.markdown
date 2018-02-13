@@ -45,7 +45,7 @@ If you have Homebrew installed somewhere other than the default, make sure to ch
 
 From now on, the relay we have set up will always be running the background once you log in. Try it out now with `ssh -p 2222 mobile@localhost`.
 
-If you use this with multiple devices, you'll notice a problem: you'll get a scary host key changed warning:
+If you use this with multiple devices, you’ll notice a problem: you’ll get a scary host key changed warning:
 
 ```
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -56,7 +56,7 @@ Someone could be eavesdropping on you right now (man-in-the-middle attack)!
 It is also possible that a host key has just been changed.
 ```
 
-The trick to avoiding this is to set the known hosts file to `/dev/null` when you're connecting to localhost:2222. Create `~/.ssh/config` if you don't already have it and add the following:
+The trick to avoiding this is to set the known hosts file to `/dev/null` when you’re connecting to localhost:2222. Create `~/.ssh/config` if you don’t already have it and add the following:
 
 ```
 Host local
@@ -75,12 +75,12 @@ To use this with Theos, you can export the IP to the host alias and the port to 
 export THEOS_DEVICE_IP=local
 ```
 
-It would be ideal to also put this in your shell's profile script (`~/.bash_profile`, `~/.zshrc`, etc) so it's set by default and you don't have to worry about it.
+It would be ideal to also put this in your shell’s profile script (`~/.bash_profile`, `~/.zshrc`, etc) so it’s set by default and you don’t have to worry about it.
 
-Plug in a jailbroken iOS device, copy your SSH key to it if you haven't already... 
+Plug in a jailbroken iOS device, copy your SSH key to it if you haven’t already... 
 
 ```bash
 ssh local 'mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys' < ~/.ssh/id_rsa.pub
 ```
 
-...and enjoy the blazingly fast transfer speed! Isn't this much better than boring ol' Wi-Fi?
+...and enjoy the blazingly fast transfer speed! Isn’t this much better than boring ol’ Wi-Fi?

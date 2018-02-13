@@ -9,7 +9,7 @@ author: kirb
 
 I just wanted to post a quick trick you can use to show a toggle in the root Settings list view.
 
-If you generate a new preference bundle project with NIC and open `entry.plist`, you'll find this:
+If you generate a new preference bundle project with NIC and open `entry.plist`, you’ll find this:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -35,7 +35,7 @@ If you generate a new preference bundle project with NIC and open `entry.plist`,
 </plist>
 ```
 
-Indeed, the cells shown in the root of Settings courtesy of PreferenceLoader are customizable. You could slap your whole settings panel there if you wanted (but that's clearly not a good idea). What you _could_ do, though, is use it for tweaks whose settings consist of nothing more than an "enabled" toggle.
+Indeed, the cells shown in the root of Settings courtesy of PreferenceLoader are customizable. You could slap your whole settings panel there if you wanted (but that’s clearly not a good idea). What you _could_ do, though, is use it for tweaks whose settings consist of nothing more than an “enabled” toggle.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -63,6 +63,6 @@ Indeed, the cells shown in the root of Settings courtesy of PreferenceLoader are
 </plist>
 ```
 
-The icon can be dropped at `/Library/PreferenceLoader/Preferences/TypeStatus.png`. Unfortunately for themers, this means it can't be themed with WinterBoard.
+The icon can be dropped at `/Library/PreferenceLoader/Preferences/TypeStatus.png`. Unfortunately for themers, this means it can’t be themed with WinterBoard.
 
-Ok, that's easy enough, but I mention this because if one or two tweaks did this, it would look pretty odd. If more tweaks do this, it'll look completely normal. And, as Ryan Petrich noted in his [WWJC talk](http://rpetri.ch/wwjc2014/rpetrich_wwjc2014.pdf) a few days ago, every tweak should have settings - even if it's just a single on/off switch.
+Ok, that’s easy enough, but I mention this because if one or two tweaks did this, it would look pretty odd. If more tweaks do this, it’ll look completely normal. And, as Ryan Petrich noted in his [WWJC talk](http://rpetri.ch/wwjc2014/rpetrich_wwjc2014.pdf) a few days ago, every tweak should have settings - even if it’s just a single on/off switch.
