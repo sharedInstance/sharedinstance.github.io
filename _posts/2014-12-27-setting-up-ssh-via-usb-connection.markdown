@@ -72,7 +72,7 @@ You can now use `ssh local` no matter what device is plugged in.
 To use this with Theos, you can export the IP to the host alias and the port to 2222:
 
 ```bash
-export THEOS_DEVICE_IP=local THEOS_DEVICE_PORT=2222
+export THEOS_DEVICE_IP=local
 ```
 
 It would be ideal to also put this in your shell's profile script (`~/.bash_profile`, `~/.zshrc`, etc) so it's set by default and you don't have to worry about it.

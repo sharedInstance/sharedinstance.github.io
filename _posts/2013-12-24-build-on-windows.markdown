@@ -66,7 +66,7 @@ Everything should work as you expect it to now. Let's try building a test tweak.
 
 ``` bash
 export THEOS=/opt/theos
-export THEOS_DEVICE_IP=kirbpad.local THEOS_DEVICE_PORT=22
+export THEOS_DEVICE_IP=kirbpad.local
 ```
 
 Load this into the shell with `. ~/.bash_profile`, or close the terminal window and launch a new one. `cd` to where you would like to store your theos projects (note that your C: drive lives at `/cygdrive/c` under Cygwin), or just create a new directory for that under your cygwin home directory:
