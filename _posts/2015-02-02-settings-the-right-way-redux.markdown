@@ -9,34 +9,21 @@ author: kirb
 
 As it turned out, retrieving tweak settings from `NSUserDefaults` as outlined in [the post I wrote](/2014/11/settings-the-right-way/) a few months ago proved to not be very robust and still had problems within a sandboxed process.
 
-At one point several months prior to the [libcephei](https://hbang.github.io/libcephei/) update a few weeks ago, I thought about how preferences loading could be improved, and started working on a class called `HBPreferences`. The idea is that either you keep an instance of this class as a global variable in your tweak, and use it basically as you would with `NSUserDefaults`. Or, you can take it one step further than what `NSUserDefaults` is capable of and "register" a variable's pointer so it'll always be up to date with no preference reloading code required in your tweak.
+At one point several months prior to the [Cephei](https://hbang.github.io/libcephei/) update a few weeks ago, I thought about how preferences loading could be improved, and started working on a class called `HBPreferences`. The idea is that either you keep an instance of this class as a global variable in your tweak, and use it basically as you would with `NSUserDefaults`. Or, you can take it one step further than what `NSUserDefaults` is capable of and "register" a variable's pointer so it'll always be up to date with no preference reloading code required in your tweak.
 
 If you don't already understand the changes made in iOS 8, refer to the first few paragraphs of [the original post](/2014/11/settings-the-right-way/).
 
-## Setting up libcephei with Theos
-You will need to copy libcephei's headers and libraries to your development machine so the compiler and linker respectively are aware of it.
-
-You won't find libcephei in Cydia by searching for "Cephei" because it's been set as hidden. However, you can install a package that depends on it like TypeStatus, or install "APT 0.7 Strict" (`apt7`) if you don't already have it and run:
+## Setting up Cephei with Theos
+You won't find Cephei in Cydia by searching for "Cephei" because it's been set as hidden. However, you can install a package that depends on it like TypeStatus, or install "APT 0.7 Strict" (`apt7`) if you don't already have it and run:
 
 ```bash
 apt-get install ws.hbang.common
 ```
 
-On your development machine, copy the required files like so:
-
-```bash
-THEOS=/opt/theos  # if you don't already have $THEOS set, set it to the location of theos
-THEOS_DEVICE_IP=iphone  # and set these two if you haven't already
-THEOS_DEVICE_PORT=22
-
-scp -P $THEOS_DEVICE_PORT root@$THEOS_DEVICE_IP:/usr/lib/libcephei\* $THEOS/lib
-scp -r -P $THEOS_DEVICE_PORT root@$THEOS_DEVICE_IP:/usr/include/\{Cephei,CepheiPrefs\} $THEOS/include
-```
-
 Now, open your project's makefile and add:
 
 ```make
-TargetName_LIBRARIES += cephei
+TargetName_EXTRA_FRAMEWORKS += Cephei
 ```
 
 In your `control` file, add `ws.hbang.common` to your dependencies, and set it to require the latest version or newer. At the time of writing, that's version 1.2, so for example:
@@ -132,4 +119,4 @@ In your preference specifiers, ensure you have the `PostNotification` key set to
 
 And that's it - now all you need to do is refer to these variables as you always would. You don't need to worry at all about what happens when the user changes a setting; `HBPreferences` takes care of it for you and updates your variables.
 
-If you want to learn more about what libcephei can do, take a look at [its documentation](https://hbang.github.io/libcephei/).
+If you want to learn more about what Cephei can do, take a look at [its documentation](https://hbang.github.io/libcephei/).
