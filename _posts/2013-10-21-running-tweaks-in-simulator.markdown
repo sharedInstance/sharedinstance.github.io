@@ -7,6 +7,8 @@ author: FTO and kirb
 comments: true
 ---
 
+> This post is rather outdated and only worked for iOS 7. [simject](https://github.com/angelxwind/simject) supports iOS 7 and newer simulators; you most likely want that instead.
+
 With the iPhone 4 being the last iOS 7 device standing that can be jailbroken tethered, it's gotten much harder to test and update tweaks for the new firmware ahead of the untethered jailbreak release.
 
 But there's still a way to do this if you're on a Mac. The iOS Simulator is basically already jailbroken, in the sense that you can access its filesystem and not all security policies are enforced. Therefore you can test your SpringBoard tweaks on iOS 7 with the simulator.

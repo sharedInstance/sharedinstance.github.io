@@ -16,7 +16,9 @@ Unfortunately, if you're not using the official toolchain (included with Xcode) 
 Before you start, be sure to [update your code for arm64](https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaTouch64BitGuide/ConvertingYourAppto64-Bit/ConvertingYourAppto64-Bit.html). Please also remember that Substrate is currently not updated for arm64, so you may want to hold off on doing this if you don't have an arm64 device to test with.
 
 ## The easy way
-<strong style="font-size: 1.05em;">(If you don't need to support iOS 4.2.1 or older)</strong>
+*…If you don’t need to support iOS 4.2.1 or older*
+
+> Note that this is rather outdated — in recent years Theos has supported arm64 out of the box and you don’t (and shouldn’t) need to do anything. If you’re having trouble with building for arm64, this advice probably won’t help you.
 
 The easiest way to fix this issue is simply to start using the iOS 7 SDK, and force theos to build your tweaks for both armv7 and arm64. If you have Xcode 5, you've most likely already completed the first part (if not, head to the App Store and update Xcode!). The second part is still fairly easy: open your project's makefile and add this line above the first `include`:
 
