@@ -1,6 +1,6 @@
 $blockquote: $type-border !default;
 $sans: "Avenir Next", Avenir, "Helvetica Neue", Arial, sans-serif !default;
-$mono: "Source Code Pro", Monaco, "Andale Mono", "Lucida Console", "Courier New", monospace !default;
+$mono: "Fira Code", "Fira Mono", "SF Mono", "Source Code Pro", Menlo, "Andale Mono", monospace !default;
 $heading-font-family: "Source Sans Pro", $sans !default;
 $header-title-font-family: $heading-font-family !default;
 $header-subtitle-font-family: $sans !default;
@@ -21,11 +21,11 @@ $header-subtitle-font-family: $sans !default;
 body {
 	color: $text-color;
 	@extend .sans;
-	font-size: 110%;
+	font-size: 105%;
 	line-height: 1.45em;
 
 	> header h1 {
-		font-size: 1.6em;
+		font-size: 1.68em;
 		@extend .sans;
 		font-family: $header-title-font-family;
 		font-weight: normal;
@@ -40,20 +40,20 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-	font-size: 2.2em;
-	line-height: 1.2em;
+	font-size: 2.31em;
+	line-height: 1.26em;
 }
 
 h2 {
-	font-size: 1.4em;
+	font-size: 1.47em;
 }
 
 h3 {
-	font-size: 1.3em;
+	font-size: 1.36em;
 }
 
 h4 {
-	font-size: 1.2em;
+	font-size: 1.26em;
 }
 
 pre, code {
@@ -88,8 +88,8 @@ ol {
 	}
 }
 
-a[rev='footnote'] {
-	font-size: .75em;
+a[rev=footnote] {
+	font-size: .8em;
 	padding: 0 .3em;
 	line-height: 1;
 }
